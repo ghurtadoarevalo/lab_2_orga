@@ -20,10 +20,12 @@ typedef struct {
 	bool status;
 	//ID
 	char AluSrc;
-	char* AluOp;
+	char AluOp_0;
+	char AluOp_1;
 	char RegDst;
 	//EX
 	char Branch;
+	char Jump;
 	char MemWrite;
 	char MemRead;
 	//WB
@@ -38,6 +40,7 @@ typedef struct {
 	bool status;
 	//EX
 	char Branch;
+	char Jump;
 	char MemWrite;
 	char MemRead;
 

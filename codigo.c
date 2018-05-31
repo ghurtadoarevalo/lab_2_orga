@@ -621,6 +621,96 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* instructionCount)
 
 }
 
+void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
+{
+
+    int lenInstruction = buffIF_ID->instruction_1[0] - '0';
+    buffID_EX->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffID_EX->instruction_1 = buffIF_ID->instruction_1;
+
+j    if (strcmp(buffIF_ID->instruction_1[1], "add") == 0 || strcmp(buffIF_ID->instruction_1[1], "addi") == 0 ||
+        strcmp(buffIF_ID->instruction_1[1], "sub") == 0 || strcmp(buffIF_ID->instruction_1[1], "subi") == 0 ||
+        strcmp(buffIF_ID->instruction_1[1], "mul") == 0 || strcmp(buffIF_ID->instruction_1[1], "div") == 0 )
+    {
+        buffID_EX->AluSrc = '0';
+        buffID_EX->AluOp_0 = '0';
+        buffID_EX->AluOp_1 = '1';
+        buffID_EX->RegDst = '1';
+
+        buffID_EX->Branch = '0';
+        buffID_EX->Jump = '0';
+        buffID_EX->MemWrite = '0';
+        buffID_EX->MemRead = '0';
+
+        buffID_EX->MemToreg = '0';
+        buffID_EX->RegWrite = '1';
+    }
+
+    else if (strcmp(buffIF_ID->instruction_1[1], "j") == 0)
+    {
+        buffID_EX->AluSrc = '0';
+        buffID_EX->AluOp_0 = '0';
+        buffID_EX->AluOp_1 = '1';
+        buffID_EX->RegDst = 'x';
+
+        buffID_EX->Branch = '0';
+        buffID_EX->Jump = '1';
+        buffID_EX->MemWrite = '0';
+        buffID_EX->MemRead = '0';
+
+        buffID_EX->MemToreg = 'x';
+        buffID_EX->RegWrite = '0';
+    }
+
+    else if (strcmp(buffIF_ID->instruction_1[1], "beq") == 0)
+    {
+        buffID_EX->AluSrc = '0';
+        buffID_EX->AluOp_0 = '0';
+        buffID_EX->AluOp_1 = '1';
+        buffID_EX->RegDst = 'x';
+
+        buffID_EX->Branch = '1';
+        buffID_EX->Jump = '0';
+        buffID_EX->MemWrite = '0';
+        buffID_EX->MemRead = '0';
+
+        buffID_EX->MemToreg = 'x';
+        buffID_EX->RegWrite = '0';
+    }
+
+    else if (strcmp(buffIF_ID->instruction_1[1], "sw") == 0)
+    {
+        buffID_EX->AluSrc = '1';
+        buffID_EX->AluOp_0 = '0';
+        buffID_EX->AluOp_1 = '0';
+        buffID_EX->RegDst = 'x';
+
+        buffID_EX->Branch = '0';
+        buffID_EX->Jump = '0';
+        buffID_EX->MemWrite = '1';
+        buffID_EX->MemRead = '0';
+
+        buffID_EX->MemToreg = 'x';
+        buffID_EX->RegWrite = '0';
+    }
+
+    else if (strcmp(buffIF_ID->instruction_1[1], "lw") == 0)
+    {
+        buffID_EX->AluSrc = '1';
+        buffID_EX->AluOp_0 = '0';
+        buffID_EX->AluOp_1 = '0';
+        buffID_EX->RegDst = '0';
+
+        buffID_EX->Branch = '0';
+        buffID_EX->Jump = '0';
+        buffID_EX->MemWrite = '0';
+        buffID_EX->MemRead = '1';
+
+        buffID_EX->MemToreg = '1';
+        buffID_EX->RegWrite = '0';
+    }
+}
+
 int main(int argc, char** argv)
 {
     char fp_source_name_1[100];
@@ -659,7 +749,6 @@ int main(int argc, char** argv)
     bufferID_EX * buffID_EX = malloc(sizeof(bufferID_EX));
     bufferEX_MEM * buffEX_MEM = malloc(sizeof(bufferEX_MEM));
     bufferMEM_WB * buffMEM_WB = malloc(sizeof(bufferMEM_WB));
-    buffID_EX->AluOp = malloc(sizeof(char)*3);
     buffIF_ID->status = true;
     buffID_EX->status = false;
     buffEX_MEM->status = false;
@@ -682,11 +771,13 @@ int main(int argc, char** argv)
 
     int  instructionCount = 1;
 
-    //while(true)
-    //{
+    for (size_t i = 0; i < 6; i++) {
+        /* code */
+
 
     fetch(buffIF_ID,instructions,&instructionCount);
     identification(buffIF_ID,buffID_EX);
+    }
     //Se recorren todas las instrucciones leídas del archivo de entrada con las instrucciones a ejecutar.
         // for (int i = 1; i < atoi(instructions[0][0]); i++)
         // {
