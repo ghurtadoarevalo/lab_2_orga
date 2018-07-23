@@ -600,7 +600,7 @@ reg** populateRegisters()
     return registers;
 }
 
-void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bool* created_2)
+void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2)
 {
     if (*created_2 == false)
     {
@@ -616,26 +616,75 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
         fprintf(fp,"Fetch , Identification, Execution, Memory, WriteBack,\n");
 
 
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+        if (strcmp(buffIF_ID[1][0],"j") == 0 || strcmp(buffIF_ID[1][0],"J") == 0 )
         {
-            fprintf(fp, "%s %s,",instruction[0],instruction[1]);
+            fprintf(fp, "%s %s,",buffIF_ID[1][0],buffIF_ID[1][1]);
             fprintf(fp, "\n");
         }
 
-        if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
+        if (strcmp(buffIF_ID[1][0],"subi") == 0 || strcmp(buffIF_ID[1][0],"sub") == 0 ||
+            strcmp(buffIF_ID[1][0],"add") == 0  || strcmp(buffIF_ID[1][0],"addi") == 0 ||
+            strcmp(buffIF_ID[1][0],"mul") == 0  || strcmp(buffIF_ID[1][0],"div") == 0||
+            strcmp(buffIF_ID[1][0],"beq") == 0)
         {
-            fprintf(fp, "%s %s %s,",instruction[0],instruction[1],instruction[2]);
+            fprintf(fp, "%s %s %s %s,",buffIF_ID[1][0],buffIF_ID[1][1],buffIF_ID[1][2],buffIF_ID[1][3]);
             fprintf(fp, "\n");
         }
 
-        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-            strcmp(instruction[0],"beq") == 0)
+        ///////////////////////
+
+        if (strcmp(buffID_EX[1][0],"j") == 0 || strcmp(buffID_EX[1][0],"J") == 0 )
         {
-            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
+            fprintf(fp, "%s %s,",buffID_EX[1][0],buffID_EX[1][1]);
             fprintf(fp, "\n");
         }
+
+        if (strcmp(buffID_EX[1][0],"subi") == 0 || strcmp(buffID_EX[1][0],"sub") == 0 ||
+            strcmp(buffID_EX[1][0],"add") == 0  || strcmp(buffID_EX[1][0],"addi") == 0 ||
+            strcmp(buffID_EX[1][0],"mul") == 0  || strcmp(buffID_EX[1][0],"div") == 0||
+            strcmp(buffID_EX[1][0],"beq") == 0)
+        {
+            fprintf(fp, "%s %s %s %s,",buffID_EX[1][0],buffID_EX[1][1],buffID_EX[1][2],buffID_EX[1][3]);
+            fprintf(fp, "\n");
+        }
+
+        /////////////////////////
+
+        if (strcmp(buffEX_MEM[1][0],"j") == 0 || strcmp(buffEX_MEM[1][0],"J") == 0 )
+        {
+            fprintf(fp, "%s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1]);
+            fprintf(fp, "\n");
+        }
+
+        if (strcmp(buffEX_MEM[1][0],"subi") == 0 || strcmp(buffEX_MEM[1][0],"sub") == 0 ||
+            strcmp(buffEX_MEM[1][0],"add") == 0  || strcmp(buffEX_MEM[1][0],"addi") == 0 ||
+            strcmp(buffEX_MEM[1][0],"mul") == 0  || strcmp(buffEX_MEM[1][0],"div") == 0||
+            strcmp(buffEX_MEM[1][0],"beq") == 0)
+        {
+            fprintf(fp, "%s %s %s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1],buffEX_MEM[1][2],buffEX_MEM[1][3]);
+            fprintf(fp, "\n");
+        }
+
+        /////////////////////////
+
+        if (strcmp(buffMEM_WB[1][0],"j") == 0 || strcmp(buffMEM_WB[1][0],"J") == 0 )
+        {
+            fprintf(fp, "%s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1]);
+            fprintf(fp, "\n");
+        }
+
+        if (strcmp(buffMEM_WB[1][0],"subi") == 0 || strcmp(buffMEM_WB[1][0],"sub") == 0 ||
+            strcmp(buffMEM_WB[1][0],"add") == 0  || strcmp(buffMEM_WB[1][0],"addi") == 0 ||
+            strcmp(buffMEM_WB[1][0],"mul") == 0  || strcmp(buffMEM_WB[1][0],"div") == 0||
+            strcmp(buffMEM_WB[1][0],"beq") == 0)
+        {
+            fprintf(fp, "%s %s %s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1],buffMEM_WB[1][2],buffMEM_WB[1][3]);
+            fprintf(fp, "\n");
+        }
+
+        ///////////////////////////
+
+
         *created_2 = true;
         fclose(fp);
 
@@ -1417,7 +1466,7 @@ int main(int argc, char** argv)
         identification(buffIF_ID,buffID_EX);
         execution(buffID_EX,buffEX_MEM,&PC, instructions, registersMemory);
          // memory(buffEX_MEM,buffMEM_WB, virtualMemory)
-         // writeBack(buffMEM_WB,)
+         // writeBack(buffMEM_WB,buffMWB_END)
          writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB);
     }
 
