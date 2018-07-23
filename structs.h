@@ -48,8 +48,8 @@ typedef struct {
 	char MemToreg;
 	char RegWrite;
 
+	int alu_result;
 	char** instruction_1;
-	char** instruction_2;
 } bufferEX_MEM;
 
 typedef struct {
@@ -62,5 +62,9 @@ typedef struct {
 	char** instruction_2;
 } bufferMEM_WB;
 
+typedef struct {
+	bool status;
 
-#endif
+	char** instruction_1;
+	char** instruction_2;
+} bufferMWB_END;
