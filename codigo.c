@@ -600,167 +600,166 @@ reg** populateRegisters()
     return registers;
 }
 
-void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2)
-{
-    if (*created_2 == false)
-    {
-        FILE *fp;
-        fp=fopen("file1.csv", "w");
-
-        if(fp == NULL)
-        {
-            printf("Error al crear el archivo %s\n",fp_output_name_2);
-            exit(1);
-        }
-
-        fprintf(fp,"Fetch , Identification, Execution, Memory, WriteBack,\n");
-
-
-        if (strcmp(buffIF_ID[1][0],"j") == 0 || strcmp(buffIF_ID[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffIF_ID[1][0],buffIF_ID[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffIF_ID[1][0],"subi") == 0 || strcmp(buffIF_ID[1][0],"sub") == 0 ||
-            strcmp(buffIF_ID[1][0],"add") == 0  || strcmp(buffIF_ID[1][0],"addi") == 0 ||
-            strcmp(buffIF_ID[1][0],"mul") == 0  || strcmp(buffIF_ID[1][0],"div") == 0||
-            strcmp(buffIF_ID[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffIF_ID[1][0],buffIF_ID[1][1],buffIF_ID[1][2],buffIF_ID[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        ///////////////////////
-
-        if (strcmp(buffID_EX[1][0],"j") == 0 || strcmp(buffID_EX[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffID_EX[1][0],buffID_EX[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffID_EX[1][0],"subi") == 0 || strcmp(buffID_EX[1][0],"sub") == 0 ||
-            strcmp(buffID_EX[1][0],"add") == 0  || strcmp(buffID_EX[1][0],"addi") == 0 ||
-            strcmp(buffID_EX[1][0],"mul") == 0  || strcmp(buffID_EX[1][0],"div") == 0||
-            strcmp(buffID_EX[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffID_EX[1][0],buffID_EX[1][1],buffID_EX[1][2],buffID_EX[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffEX_MEM[1][0],"j") == 0 || strcmp(buffEX_MEM[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffEX_MEM[1][0],"subi") == 0 || strcmp(buffEX_MEM[1][0],"sub") == 0 ||
-            strcmp(buffEX_MEM[1][0],"add") == 0  || strcmp(buffEX_MEM[1][0],"addi") == 0 ||
-            strcmp(buffEX_MEM[1][0],"mul") == 0  || strcmp(buffEX_MEM[1][0],"div") == 0||
-            strcmp(buffEX_MEM[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1],buffEX_MEM[1][2],buffEX_MEM[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffMEM_WB[1][0],"j") == 0 || strcmp(buffMEM_WB[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffMEM_WB[1][0],"subi") == 0 || strcmp(buffMEM_WB[1][0],"sub") == 0 ||
-            strcmp(buffMEM_WB[1][0],"add") == 0  || strcmp(buffMEM_WB[1][0],"addi") == 0 ||
-            strcmp(buffMEM_WB[1][0],"mul") == 0  || strcmp(buffMEM_WB[1][0],"div") == 0||
-            strcmp(buffMEM_WB[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1],buffMEM_WB[1][2],buffMEM_WB[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        ///////////////////////////
-
-
-        *created_2 = true;
-        fclose(fp);
-
-    }
-
-    else
-    {
-        FILE *fp;
-        fp=fopen(fp_output_name_2, "a");
-
-        if(fp == NULL)
-        {
-            printf("Error al crear el archivo %s\n", fp_output_name_2);
-            exit(1);
-        }
-
-
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",instruction[0],instruction[1]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
-        {
-            fprintf(fp, "%s %s %s,",instruction[0],instruction[1],instruction[2]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-            strcmp(instruction[0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        fclose(fp);
-    }
-}
+// void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2)
+// {
+//     if (*created_2 == false)
+//     {
+//         FILE *fp;
+//         fp=fopen("file1.csv", "w");
+//
+//         if(fp == NULL)
+//         {
+//             printf("Error al crear el archivo %s\n","fp_output_name_2");
+//             exit(1);
+//         }
+//
+//         fprintf(fp,"Fetch , Identification, Execution, Memory, WriteBack,\n");
+//
+//
+//         if (strcmp(buffIF_ID->instruction_2[1][0],"j") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"J") == 0 )
+//         {
+//             fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(buffIF_ID->instruction_2[1][0],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"sub") == 0 ||
+//             strcmp(buffIF_ID->instruction_2[1][0],"add") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"addi") == 0 ||
+//             strcmp(buffIF_ID->instruction_2[1][0],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"div") == 0||
+//             strcmp(buffIF_ID->instruction_2[1][0],"beq") == 0)
+//         {
+//             fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1],buffIF_ID->instruction_2[1][2],buffIF_ID->instruction_2[1][3]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         ///////////////////////
+//
+//         if (strcmp(buffID_EX[1][0],"j") == 0 || strcmp(buffID_EX[1][0],"J") == 0 )
+//         {
+//             fprintf(fp, "%s %s,",buffID_EX[1][0],buffID_EX[1][1]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(buffID_EX[1][0],"subi") == 0 || strcmp(buffID_EX[1][0],"sub") == 0 ||
+//             strcmp(buffID_EX[1][0],"add") == 0  || strcmp(buffID_EX[1][0],"addi") == 0 ||
+//             strcmp(buffID_EX[1][0],"mul") == 0  || strcmp(buffID_EX[1][0],"div") == 0||
+//             strcmp(buffID_EX[1][0],"beq") == 0)
+//         {
+//             fprintf(fp, "%s %s %s %s,",buffID_EX[1][0],buffID_EX[1][1],buffID_EX[1][2],buffID_EX[1][3]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         /////////////////////////
+//
+//         if (strcmp(buffEX_MEM[1][0],"j") == 0 || strcmp(buffEX_MEM[1][0],"J") == 0 )
+//         {
+//             fprintf(fp, "%s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(buffEX_MEM[1][0],"subi") == 0 || strcmp(buffEX_MEM[1][0],"sub") == 0 ||
+//             strcmp(buffEX_MEM[1][0],"add") == 0  || strcmp(buffEX_MEM[1][0],"addi") == 0 ||
+//             strcmp(buffEX_MEM[1][0],"mul") == 0  || strcmp(buffEX_MEM[1][0],"div") == 0||
+//             strcmp(buffEX_MEM[1][0],"beq") == 0)
+//         {
+//             fprintf(fp, "%s %s %s %s,",buffEX_MEM[1][0],buffEX_MEM[1][1],buffEX_MEM[1][2],buffEX_MEM[1][3]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         /////////////////////////
+//
+//         if (strcmp(buffMEM_WB[1][0],"j") == 0 || strcmp(buffMEM_WB[1][0],"J") == 0 )
+//         {
+//             fprintf(fp, "%s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(buffMEM_WB[1][0],"subi") == 0 || strcmp(buffMEM_WB[1][0],"sub") == 0 ||
+//             strcmp(buffMEM_WB[1][0],"add") == 0  || strcmp(buffMEM_WB[1][0],"addi") == 0 ||
+//             strcmp(buffMEM_WB[1][0],"mul") == 0  || strcmp(buffMEM_WB[1][0],"div") == 0||
+//             strcmp(buffMEM_WB[1][0],"beq") == 0)
+//         {
+//             fprintf(fp, "%s %s %s %s,",buffMEM_WB[1][0],buffMEM_WB[1][1],buffMEM_WB[1][2],buffMEM_WB[1][3]);
+//             fprintf(fp, "\n");
+//         }
+//
+//         ///////////////////////////
+//
+//
+//         *created_2 = true;
+//         fclose(fp);
+//
+//     }
+//
+//     else
+//     {
+//         FILE *fp;
+//         fp=fopen(fp_output_name_2, "a");
+//
+//         if(fp == NULL)
+//         {
+//             printf("Error al crear el archivo %s\n", fp_output_name_2);
+//             exit(1);
+//         }
+//
+//
+//         if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+//         {
+//             fprintf(fp, "%s %s,",instruction[0],instruction[1]);
+//             for (size_t i = 0; i < REGISTERSNUMBER; i++)
+//             {
+//                 fprintf(fp, "%d,", registersMemory[i]->value);
+//             }
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
+//         {
+//             fprintf(fp, "%s %s %s,",instruction[0],instruction[1],instruction[2]);
+//             for (size_t i = 0; i < REGISTERSNUMBER; i++)
+//             {
+//                 fprintf(fp, "%d,", registersMemory[i]->value);
+//             }
+//             fprintf(fp, "\n");
+//         }
+//
+//         if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
+//             strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
+//             strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
+//             strcmp(instruction[0],"beq") == 0)
+//         {
+//             fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
+//             for (size_t i = 0; i < REGISTERSNUMBER; i++)
+//             {
+//                 fprintf(fp, "%d,", registersMemory[i]->value);
+//             }
+//             fprintf(fp, "\n");
+//         }
+//
+//         fclose(fp);
+//     }
+// }
 
 void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
 {
+    printf("%s\n","///////////////////// Inicio Fetch /////////////////////////" );
     int lenInstruction = instructions[*PC][0] - '0';
     buffIF_ID->instruction_1 = malloc(sizeof(char*)*(lenInstruction+2));
     buffIF_ID->instruction_1[0] = instructions[*PC][0];
-
     // lw $t0 $t1 1000 = lw $t0 1000($t1)
     if (strcmp(instructions[*PC][1],"sw") == 0 || strcmp(instructions[*PC][1],"lw") == 0 )
     {
-        char lenInstructionPlus[5];
-        sprintf(str, "%d", lenInstruction+1);
         buffIF_ID->instruction_1 = malloc(sizeof(char*)*(lenInstruction+3));
-        buffIF_ID->instruction_1[0] = lenInstructionPlus;
+        buffIF_ID->instruction_1[0] = (lenInstruction+1) + '0';
+        printf("%c\n",buffIF_ID->instruction_1[0] );
 
         char * offset_variable = malloc(sizeof(char)*5);
-        int offset_variable_number = 0;
-        int offset_number = 0;
+        char * offset_number = malloc(sizeof(char)*5);
+
         char* token;
         char * aux = malloc(sizeof(char)*strlen(instructions[*PC][3]));
         strcpy(aux,instructions[*PC][3]);
         token = strtok(aux,"(");
-        offset_number = atoi(token);
+        strcpy(offset_number,token);
         token = strtok(NULL,")");
         strcpy(offset_variable,token);
         buffIF_ID->instruction_1[1] = instructions[*PC][1];
@@ -787,17 +786,53 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
         buffIF_ID->status = false;
     }
 
+    if ( (strcmp(buffIF_ID->instruction_1[1], "end:") == 0))
+    {
+        //printf("%c\n", buffIF_ID->instruction_1[0]);
+        printf("%s\n", buffIF_ID->instruction_1[1]);
+        printf("\n");
+    }
+
+    else if((strcmp(buffIF_ID->instruction_1[1],"j") == 0))
+    {
+        //printf("%c\n", buffIF_ID->instruction_1[0]);
+        printf("%s\n", buffIF_ID->instruction_1[1]);
+        printf("%s\n", buffIF_ID->instruction_1[2]);
+        printf("\n");
+
+    }
+
+    else
+    {
+        //printf("%c\n", buffIF_ID->instruction_1[0]);
+        printf("%s\n", buffIF_ID->instruction_1[1]);
+        printf("%s\n", buffIF_ID->instruction_1[2]);
+        printf("%s\n", buffIF_ID->instruction_1[3]);
+        printf("%s\n", buffIF_ID->instruction_1[4]);
+
+        printf("\n");
+    }
+
+    printf("%s\n\n","///////////////////// Fin Fetch /////////////////////////" );
 
 }
 
-void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
+void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** registersMemory)
 {
+    printf("%s\n","///////////////////// Inicio Identification /////////////////////////" );
+
     int lenInstruction = buffIF_ID->instruction_1[0] - '0';
     buffID_EX->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffID_EX->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
+
     buffID_EX->instruction_1 = buffIF_ID->instruction_1;
+    buffID_EX->instruction_2 = buffIF_ID->instruction_1;
 
     //Listo
-    if (strcmp(buffIF_ID->instruction_1[1],"sub") == 0 || strcmp(buffIF_ID->instruction_1[1],"subi") == 0)
+    if (strcmp(buffIF_ID->instruction_1[1],"sub") == 0 || strcmp(buffIF_ID->instruction_1[1],"subi") == 0 ||
+        strcmp(buffIF_ID->instruction_1[1],"add") == 0 || strcmp(buffIF_ID->instruction_1[1],"addi") == 0 ||
+        strcmp(buffIF_ID->instruction_1[1],"mul") == 0 || strcmp(buffIF_ID->instruction_1[1],"div") == 0  ||
+        strcmp(buffIF_ID->instruction_1[1],"beq") == 0)
     {
         int j;
 
@@ -806,9 +841,9 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         {
             //Se verifica si la segunda variable de la instrucción existe
             //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffIF_ID->instruction_1[2],registersMemory[j]->name) == 0)
+            if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
             {
-                buffID_EX->instruction_1[2] = registersMemory[j]->value;
+                buffID_EX->instruction_1[3] = registersMemory[j]->value + "0";
                 break;
             }
         }
@@ -816,6 +851,7 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         //En caso de que no exista la segunda variable en memoria, error.
         if (j == REGISTERSNUMBER)
         {
+            printf("%s\n","Error holaaaa2");
             exit(1);
         }
 
@@ -824,9 +860,9 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         {
             //Se verifica si la tercera variable de la instrucción existe
             //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
+            if (strcmp(buffIF_ID->instruction_1[4],registersMemory[j]->name) == 0)
             {
-                buffID_EX->instruction_1[3] = registersMemory[j]->value;
+                buffID_EX->instruction_1[4] = registersMemory[j]->value + "0";
                 break;
             }
         }
@@ -835,9 +871,9 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         if (j == REGISTERSNUMBER)
         {
             //Si la instrucción es subi, entonces se toma el número de la instrucción
-            if (strcmp(buffIF_ID->instruction_1[1],"subi") == 0)
+            if (strcmp(buffIF_ID->instruction_1[1],"subi") == 0 || strcmp(buffIF_ID->instruction_1[1],"addi") == 0 )
             {
-                buffID_EX->instruction_1[3] = atoi(buffIF_ID->instruction_1[3]);
+                buffID_EX->instruction_1[4] = buffIF_ID->instruction_1[4];
             }
 
             else
@@ -845,10 +881,28 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
                 exit(1);
             }
         }
+
+        //Se recorren la memoria de registros
+        for (j = 0; j < REGISTERSNUMBER; j++)
+        {
+            //Se verifica si la segunda variable de la instrucción existe
+            //En caso de hacerlo, se toma su valor de memoria
+            if (strcmp(buffIF_ID->instruction_1[2],registersMemory[j]->name) == 0)
+            {
+                break;
+            }
+        }
+
+        //En caso de que no exista la segunda variable en memoria, error.
+        if (j == REGISTERSNUMBER)
+        {
+            printf("%s\n","Error 3");
+            exit(1);
+        }
     }
 
     //Listo
-    else if (strcmp(buffIF_ID->instruction_1[1],"add") == 0 || strcmp(buffIF_ID->instruction_1[1],"addi") == 0)
+    else if(strcmp(buffIF_ID->instruction_1[1],"sw") == 0)
     {
         int j;
 
@@ -859,13 +913,12 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
             //En caso de hacerlo, se toma su valor de memoria
             if (strcmp(buffIF_ID->instruction_1[2],registersMemory[j]->name) == 0)
             {
-                //variable 1
-                buffID_EX->instruction_1[2] = registersMemory[j]->value;
+
+                buffID_EX->instruction_1[2] = registersMemory[j]->value + "0";
                 break;
             }
         }
 
-        //En caso de que no exista la segunda variable en memoria, error.
         if (j == REGISTERSNUMBER)
         {
             exit(1);
@@ -874,37 +927,44 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         //Se recorren la memoria de registros
         for (j = 0; j < REGISTERSNUMBER; j++)
         {
-            //Se verifica si la tercera variable de la instrucción existe
+            //Se verifica si la segunda variable de la instrucción existe
             //En caso de hacerlo, se toma su valor de memoria
             if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
             {
-                //variable 2
-                buffID_EX->instruction_1[3] = registersMemory[j]->value;
+
+                buffID_EX->instruction_1[3] = registersMemory[j]->value + "0";
                 break;
             }
         }
 
-        //En caso de que no exista la tercera variable en memoria
         if (j == REGISTERSNUMBER)
         {
-            //Si la instrucción es addi, entonces se toma el número de la instrucción
-            if (strcmp(buffIF_ID->instruction_1[1],"addi") == 0)
-            {
-                //variable 2
-                buffID_EX->instruction_1[3] = atoi(buffIF_ID->instruction_1[3]);
-            }
-
-            else
-            {
-                exit(1);
-            }
+            exit(1);
         }
     }
 
     //Listo
-    else if (strcmp(buffIF_ID->instruction_1[1],"mul") == 0 || strcmp(buffIF_ID->instruction_1[1],"div") == 0 || strcmp(buffIF_ID->instruction_1[1],"beq") == 0)
+    else if (strcmp(buffIF_ID->instruction_1[1],"lw") == 0)
     {
         int j;
+        //Se recorren la memoria de registros
+        for (j = 0; j < REGISTERSNUMBER; j++)
+        {
+            //Se verifica si la segunda variable de la instrucción existe
+            //En caso de hacerlo, se toma su valor de memoria
+            if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
+            {
+
+                buffID_EX->instruction_1[3] = registersMemory[j]->value + "0";
+                break;
+            }
+        }
+
+        if (j == REGISTERSNUMBER)
+        {
+            exit(1);
+        }
+
 
         //Se recorren la memoria de registros
         for (j = 0; j < REGISTERSNUMBER; j++)
@@ -913,52 +973,7 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
             //En caso de hacerlo, se toma su valor de memoria
             if (strcmp(buffIF_ID->instruction_1[2],registersMemory[j]->name) == 0)
             {
-                buffID_EX->instruction_1[2] = registersMemory[j]->value;
-                break;
-            }
-        }
 
-        //En caso de que no exista la segunda variable en memoria, error.
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1)
-        }
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la tercera variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
-            {
-                buffID_EX->instruction_1[3] = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //En caso de que no exista la tercera variable en memoria, error.
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1)
-        }
-    }
-
-    //Listo
-    else if (strcmp(buffIF_ID->instruction_1[1],"lw") == 0 || strcmp(buffIF_ID->instruction_1[1],"sw") == 0)
-    {
-
-
-        int j;
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la segunda variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffIF_ID->instruction_1[3],registersMemory[j]->name) == 0)
-            {
-
-                buffIF_ID->instruction_1[3] = registersMemory[j]->value;
-                break;
             }
         }
 
@@ -968,6 +983,8 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         }
     }
 
+
+    //Lineas de control
     if (strcmp(buffIF_ID->instruction_1[1], "add") == 0 || strcmp(buffIF_ID->instruction_1[1], "addi") == 0 ||
         strcmp(buffIF_ID->instruction_1[1], "sub") == 0 || strcmp(buffIF_ID->instruction_1[1], "subi") == 0 ||
         strcmp(buffIF_ID->instruction_1[1], "mul") == 0 || strcmp(buffIF_ID->instruction_1[1], "div") == 0 )
@@ -1049,21 +1066,56 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX)
         buffID_EX->MemToreg = '1';
         buffID_EX->RegWrite = '0';
     }
+
+
+    //DEBUg
+    if ( (strcmp(buffID_EX->instruction_1[1], "end:") == 0))
+    {
+        //printf("%c\n", buffID_EX->instruction_1[0]);
+        printf("%s\n", buffID_EX->instruction_1[1]);
+        printf("\n");
+    }
+
+    else if((strcmp(buffID_EX->instruction_1[1],"j") == 0))
+    {
+        //printf("%c\n", buffID_EX->instruction_1[0]);
+        printf("%s\n", buffID_EX->instruction_1[1]);
+        printf("%s\n", buffID_EX->instruction_1[2]);
+        printf("\n");
+
+    }
+
+    else
+    {
+        //printf("%c\n", buffID_EX->instruction_1[0]);
+        printf("%s\n", buffID_EX->instruction_1[1]);
+        printf("%s\n", buffID_EX->instruction_1[2]);
+        printf("%s\n", buffID_EX->instruction_1[3]);
+        printf("%s\n", buffID_EX->instruction_1[4]);
+        printf("\n");
+    }
+
+    printf("%s\n\n","///////////////////// Fin Identification /////////////////////////" );
+
 }
 
-void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char*** instructions, reg** registersMemory)
+void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char*** instructions)
 {
+    printf("%s\n","///////////////////// Inicio Execution /////////////////////////" );
 
+    int result = 0;
     int lenInstruction = buffID_EX->instruction_1[0] - '0';
     buffEX_MEM->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffEX_MEM->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
     buffEX_MEM->instruction_1 = buffID_EX->instruction_1;
-    printf("%s\n",buffEX_MEM->instruction_1[1] );
+    buffEX_MEM->instruction_2 = buffID_EX->instruction_1;
+
     //En caso de que la instrucción sea j
-    if (strcmp(buffEX_MEM->instruction_1[1],"j") == 0)
+    if (strcmp(buffID_EX->instruction_1[1],"j") == 0)
     {
         //Si linea de control jump no tiene stuck at 0
-        char * label = malloc(sizeof(char)*(strlen(buffEX_MEM->instruction_1[2])+1));
-        strcpy(label, buffEX_MEM->instruction_1[2]);
+        char * label = malloc(sizeof(char)*(strlen(buffID_EX->instruction_1[2])+1));
+        strcpy(label, buffID_EX->instruction_1[2]);
         strcat(label, ":\0");
 
         int j;
@@ -1078,324 +1130,179 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
         *PC = j;
     }
 
-    else if (strcmp(buffEX_MEM->instruction_1[1],"sub") == 0 || strcmp(buffEX_MEM->instruction_1[1],"subi") == 0)
+    else if (strcmp(buffID_EX->instruction_1[1],"sub") == 0 || strcmp(buffID_EX->instruction_1[1],"subi") == 0)
     {
-
-        result = variable_1 - variable_2;
+        int variable_1 = atoi(buffID_EX->instruction_1[4]);
+        int variable_2 = atoi(buffID_EX->instruction_1[3]);
+        int result = variable_1 - variable_2;
         buffEX_MEM->alu_result = result;
     }
 
-    else if (strcmp(buffEX_MEM->instruction_1[1],"add") == 0 || strcmp(buffEX_MEM->instruction_1[1],"addi") == 0)
+    else if (strcmp(buffID_EX->instruction_1[1],"add") == 0 || strcmp(buffID_EX->instruction_1[1],"addi") == 0)
     {
-        int variable_1 = 0;
-        int variable_2 = 0;
-        int result = 0;
-        int j;
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la segunda variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[2],registersMemory[j]->name) == 0)
-            {
-                variable_1 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la tercera variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[3],registersMemory[j]->name) == 0)
-            {
-                variable_2 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //Si la instrucción es addi, entonces se toma el número de la instrucción
-        if (j == REGISTERSNUMBER)
-        {
-            //Si la instrucción es subi, entonces se toma el número de la instrucción
-            if (strcmp(buffEX_MEM->instruction_1[1],"addi") == 0)
-            {
-                variable_2 = atoi(buffEX_MEM->instruction_1[3]);
-            }
-
-            else
-            {
-                exit(1);
-            }
-        }
-
-
-        //Se realiza la operación
-        result = variable_1 + variable_2;
-
+        int variable_1 = atoi(buffID_EX->instruction_1[4]);
+        int variable_2 = atoi(buffID_EX->instruction_1[3]);
+        int result = variable_1 + variable_2;
         buffEX_MEM->alu_result = result;
+
     }
 
-    else if (strcmp(buffEX_MEM->instruction_1[1],"mul") == 0)
+    else if (strcmp(buffID_EX->instruction_1[1],"mul") == 0)
     {
-        int variable_1 = 0;
-        int variable_2 = 0;
-        int result = 0;
-        int j;
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la segunda variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[2],registersMemory[j]->name) == 0)
-            {
-                variable_1 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //En caso de que no exista la segunda variable en memoria, error.
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1)
-        }
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la tercera variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[3],registersMemory[j]->name) == 0)
-            {
-                variable_2 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //En caso de que no exista la tercera variable en memoria, error.
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1)
-        }
-
-        //Se realiza la operación
-        result = variable_1 * variable_2;
-
+        int variable_1 = atoi(buffID_EX->instruction_1[4]);
+        int variable_2 = atoi(buffID_EX->instruction_1[3]);
+        int result = variable_1 * variable_2;
         buffEX_MEM->alu_result = result;
+
     }
 
-    else if (strcmp(buffEX_MEM->instruction_1[1],"div") == 0)
+    else if (strcmp(buffID_EX->instruction_1[1],"div") == 0)
     {
-        int variable_1 = 0;
-        int variable_2 = 0;
-        int result = 0;
-        int j;
+        int variable_1 = atoi(buffID_EX->instruction_1[4]);
+        int variable_2 = atoi(buffID_EX->instruction_1[3]);
 
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la segunda variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[2], registersMemory[j]->name) == 0)
-            {
-                variable_1 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //En caso de que no exista la segunda variable en memoria, error.
-        if (j == REGISTERSNUMBER)
-        {
-            strcpy(error,"No existe la variable ");
-            strcat(error,instructions[i][2]);
-            writeInstructions(instructions[i], error,&created_1, fp_output_name_1);
-            writeRegisters(registersMemory,instructions[i], &created_2, fp_output_name_2);
-        }
-
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la tercera variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(buffEX_MEM->instruction_1[3],registersMemory[j]->name) == 0)
-            {
-                variable_2 = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        //En caso de que no exista la tercera variable en memoria
-        if (j == REGISTERSNUMBER)
-        {
-            //Si la instrucción es subi, entonces se toma el número de la instrucción
-            if (strcmp(instructions[i][0],"subi") == 0)
-            {
-                variable_2 = atoi(instructions[i][3]);
-            }
-        }
         if (variable_2 == 0)
         {
             exit(1);
         }
 
         //Se realiza la operación
-        result = variable_1 / variable_2;
+        int result = variable_1 / variable_2;
         buffEX_MEM->alu_result = result;
+    }
+
+    else if (strcmp(buffID_EX->instruction_1[1],"lw") == 0)
+    {
+        char * offset_variable = malloc(sizeof(char)*5);
+        int offset_variable_number = atoi(buffID_EX->instruction_1[3]);
+        int offset_number = atoi(buffID_EX->instruction_1[4]);
+        int memory_direction = 0;
+        memory_direction = (offset_variable_number + offset_number)/4;
+
+        buffEX_MEM->alu_result = memory_direction;
+    }
+
+    else if (strcmp(buffID_EX->instruction_1[1],"sw") == 0)
+    {
+        char * offset_variable = malloc(sizeof(char)*5);
+        int offset_variable_number = atoi(buffID_EX->instruction_1[3]);
+        int memory_direction = 0;
+        int offset_number = atoi(buffID_EX->instruction_1[4]);
+
+        memory_direction = (offset_variable_number + offset_number)/4;
+
+        buffEX_MEM->alu_result = memory_direction;
+    }
+
+    printf("Soy Aluresult : %d\n\n", buffEX_MEM->alu_result );
+
+    printf("%s\n\n","///////////////////// Fin Execution /////////////////////////" );
+
+}
+
+void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemory, reg** registersMemory)
+{
+    printf("%s\n","///////////////////// Inicio Memory /////////////////////////" );
+
+    int lenInstruction = buffEX_MEM->instruction_1[0] - '0';
+    buffMEM_WB->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffMEM_WB->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffMEM_WB->instruction_1 = buffEX_MEM->instruction_1;
+    buffMEM_WB->instruction_2 = buffEX_MEM->instruction_1;
+
+    //En caso de que la instrucción sea j
+    if (strcmp(buffEX_MEM->instruction_1[1],"j") == 0)
+    {
     }
 
     else if (strcmp(buffEX_MEM->instruction_1[1],"lw") == 0)
     {
-
-        char * offset_variable = malloc(sizeof(char)*5);
-        int offset_variable_number = 0;
-        int memory_direction = 0;
-        int offset_number = 0;
-        char* token;
-        char * aux = malloc(sizeof(char)*strlen(instructions[*PC][3]));
-        strcpy(aux,instructions[*PC][3]);
-        token = strtok(aux,"(");
-        offset_number = atoi(token);
-        token = strtok(NULL,")");
-        strcpy(offset_variable,token);
-
-        int j;
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
+        for (int j = 0; j < REGISTERSNUMBER; j++)
         {
             //Se verifica si la segunda variable de la instrucción existe
             //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(offset_variable,registersMemory[j]->name) == 0)
+            if (strcmp(buffEX_MEM->instruction_1[2],registersMemory[j]->name) == 0)
             {
-                offset_variable_number = registersMemory[j]->value;
+                buffMEM_WB->memory_data =  virtualMemory[buffEX_MEM->alu_result];
                 break;
             }
+
+            else
+            {
+                printf("%s\n","holaaaa");
+                exit(1);
+            }
         }
-
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1);
-        }
-
-        memory_direction = (offset_variable_number + offset_number)/4;
-
-        buffEX_MEM->alu_result = memory_direction;
     }
 
     else if (strcmp(buffEX_MEM->instruction_1[1],"sw") == 0)
     {
-        char * offset_variable = malloc(sizeof(char)*5);
-        int offset_variable_number = 0;
-        int memory_direction = 0;
-        int offset_number = 0;
-        char* token;
-        char * aux = malloc(sizeof(char)*strlen(instructions[*PC][3]));
-        strcpy(aux,instructions[*PC][3]);
-        token = strtok(aux,"(");
-        offset_number = atoi(token);
-        token = strtok(NULL,")");
-        strcpy(offset_variable,token);
-
-        int j;
-        //Se recorren la memoria de registros
-        for (j = 0; j < REGISTERSNUMBER; j++)
-        {
-            //Se verifica si la segunda variable de la instrucción existe
-            //En caso de hacerlo, se toma su valor de memoria
-            if (strcmp(offset_variable,registersMemory[j]->name) == 0)
-            {
-                offset_variable_number = registersMemory[j]->value;
-                break;
-            }
-        }
-
-        if (j == REGISTERSNUMBER)
-        {
-            exit(1);
-        }
-
-        memory_direction = (offset_variable_number + offset_number)/4;
-
-        buffEX_MEM->alu_result = memory_direction;
+        virtualMemory[buffEX_MEM->alu_result] = buffEX_MEM->instruction_1[2];
     }
+
+    buffMEM_WB->alu_result = buffEX_MEM->alu_result;
+
+    printf("%s\n\n","///////////////////// Fin Memory /////////////////////////" );
+
 }
 
+void writeBack(bufferMEM_WB* buffMEM_WB, bufferMWB_END* buffMWB_END,reg** registersMemory)
+{
+    printf("%s\n","///////////////////// Inicio WriteBack /////////////////////////" );
 
-// void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemory)
-// {
-//     int lenInstruction = buffEX_MEM->instruction_1[0] - '0';
-//     buffMEM_WB->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
-//     buffMEM_WB->instruction_1 = buffEX_MEM->instruction_1;
-//
-//     //En caso de que la instrucción sea j
-//     if (strcmp(buffMEM_WB->instruction_1[1],"j") == 0)
-//     {
-//     }
-//
-//     else if (strcmp(buffMEM_WB->instruction_1[1],"sub") == 0 || strcmp(buffMEM_WB->instruction_1[1],"subi") == 0 ||
-//              strcmp(buffMEM_WB->instruction_1[1],"add") == 0 || strcmp(buffMEM_WB->instruction_1[1],"addi") == 0 ||
-//              strcmp(buffMEM_WB->instruction_1[1],"mul") == 0 || strcmp(buffMEM_WB->instruction_1[1],"div") == 0)
-//     {
-//         //Se recorren la memoria de registros
-//         for (j = 0; j < REGISTERSNUMBER; j++)
-//         {
-//             //Se verifica si la primera variable de la instrucción existe
-//             //En caso de hacerlo, guarda el resultado en memoria
-//             if (strcmp(instructions[*PC][2],registersMemory[j]->name) == 0)
-//             {
-//                 registersMemory[j]->value = buffEX_MEM->alu_result;
-//                 break;
-//             }
-//
-//             else
-//             {
-//                 exit(1);
-//             }
-//         }
-//     }
-//
-//     else if (strcmp(buffMEM_WB->instruction_1[1],"lw") == 0)
-//     {
-//         for (j = 0; j < REGISTERSNUMBER; j++)
-//         {
-//             //Se verifica si la segunda variable de la instrucción existe
-//             //En caso de hacerlo, se toma su valor de memoria
-//             if (strcmp(instructions[*PC][2],registersMemory[j]->name) == 0)
-//             {
-//                 registersMemory[j]->value =  virtualMemory[buffEX_MEM->alu_result];
-//                 break;
-//             }
-//
-//             else
-//             {
-//                 exit(1);
-//             }
-//         }
-//     }
-//
-//     else if (strcmp(buffMEM_WB->instruction_1[1],"sw") == 0)
-//     {
-//         for (j = 0; j < REGISTERSNUMBER; j++)
-//         {
-//             //Se verifica si la segunda variable de la instrucción existe
-//             //En caso de hacerlo, se toma su valor de memoria
-//             if (strcmp(instructions[*PC][2],registersMemory[j]->name) == 0)
-//             {
-//                 virtualMemory[buffEX_MEM->alu_result] = registersMemory[j]->value;
-//                 break;
-//             }
-//
-//             else
-//             {
-//                 exit(1);
-//             }
-//         }
-//     }
-// }
+    int lenInstruction = buffMEM_WB->instruction_1[0] - '0';
+    buffMWB_END->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffMWB_END->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
+    buffMWB_END->instruction_1 = buffMEM_WB->instruction_1;
+    buffMWB_END->instruction_2 = buffMEM_WB->instruction_1;
 
-//void writeBack(bufferMEM_WB* buffMEM_WB, bufferMWB_END* buffMWB_END)
+    if (strcmp(buffMEM_WB->instruction_1[1],"sub") == 0 || strcmp(buffMEM_WB->instruction_1[1],"subi") == 0 ||
+        strcmp(buffMEM_WB->instruction_1[1],"add") == 0 || strcmp(buffMEM_WB->instruction_1[1],"addi") == 0 ||
+        strcmp(buffMEM_WB->instruction_1[1],"mul") == 0 || strcmp(buffMEM_WB->instruction_1[1],"div") == 0)
+    {
+        //Se recorren la memoria de registros
+        for (int j = 0; j < REGISTERSNUMBER; j++)
+        {
+            //Se verifica si la primera variable de la instrucción existe
+            //En caso de hacerlo, guarda el resultado en memoria
+            if (strcmp(buffMEM_WB->instruction_1[2],registersMemory[j]->name) == 0)
+            {
+                registersMemory[j]->value = buffMEM_WB->alu_result;
+                break;
+            }
+
+            else
+            {
+                printf("Error\n");
+                exit(1);
+            }
+        }
+    }
+
+    else if (strcmp(buffMEM_WB->instruction_1[1],"lw") == 0)
+    {
+        //Se recorren la memoria de registros
+        for (int j = 0; j < REGISTERSNUMBER; j++)
+        {
+            //Se verifica si la primera variable de la instrucción existe
+            //En caso de hacerlo, guarda el resultado en memoria
+            if (strcmp(buffMEM_WB->instruction_1[2],registersMemory[j]->name) == 0)
+            {
+                registersMemory[j]->value = buffMEM_WB->memory_data;
+                break;
+            }
+
+            else
+            {
+                printf("Error\n");
+                exit(1);
+            }
+        }
+    }
+
+    printf("%s\n\n","///////////////////// Fin writeBack /////////////////////////" );
+
+}
 
 int main(int argc, char** argv)
 {
@@ -1462,12 +1369,17 @@ int main(int argc, char** argv)
 
     while(true)
     {
+        //printf("PC 1 %d\n", PC );
         fetch(buffIF_ID,instructions,&PC);
-        identification(buffIF_ID,buffID_EX);
-        execution(buffID_EX,buffEX_MEM,&PC, instructions, registersMemory);
-         // memory(buffEX_MEM,buffMEM_WB, virtualMemory)
-         // writeBack(buffMEM_WB,buffMWB_END)
-         writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB);
+        //tf("%s\n", buffIF_ID->instruction_1[1]);
+        //printf("PC 2 %d\n", PC );
+
+        identification(buffIF_ID,buffID_EX,registersMemory);
+        execution(buffID_EX,buffEX_MEM,&PC, instructions);
+        memory(buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory);
+        writeBack(buffMEM_WB,buffMWB_END, registersMemory);
+         //writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB);
+
     }
 
     printf("Ha terminado la ejecución del programa, por favor revise los archivos de salida: %s y %s\n", fp_output_name_1, fp_output_name_2);

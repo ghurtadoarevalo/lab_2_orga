@@ -50,6 +50,8 @@ typedef struct {
 
 	int alu_result;
 	char** instruction_1;
+	char** instruction_2;
+
 } bufferEX_MEM;
 
 typedef struct {
@@ -60,6 +62,9 @@ typedef struct {
 
 	char** instruction_1;
 	char** instruction_2;
+
+	int alu_result;
+	int memory_data;
 } bufferMEM_WB;
 
 typedef struct {
@@ -68,3 +73,6 @@ typedef struct {
 	char** instruction_1;
 	char** instruction_2;
 } bufferMWB_END;
+
+
+#endif
