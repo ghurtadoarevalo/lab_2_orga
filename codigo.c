@@ -139,271 +139,6 @@ char*** readData(char* fp_source_name_1)
     return registers;
 }
 
-//Función encargada de leer todas las lineas de control del archivo con el nombre que contenga la variable fp_source_name_2
-//Entradas: String
-//Salidas: Arreglo de caracteres que representan las lineas de control
-char* populateControlLinesMemory(char* fp_source_name_2)
-{
-    char*** controlLines = NULL;
-    controlLines = readData(fp_source_name_2);
-    char* controlLinesMemory = malloc(sizeof(char)*9);
-    for (int i = 1; i < atoi(controlLines[0][0])+1; i++)
-    {
-        if (strcmp(controlLines[i][0],"Regdst") == 0 || strcmp(controlLines[i][0],"regdst") == 0)
-        {
-            controlLinesMemory[0] = controlLines[i][1][0];
-        }
-
-        else if (strcmp(controlLines[i][0],"Jump") == 0 || strcmp(controlLines[i][0],"jump") == 0)
-        {
-            controlLinesMemory[1] = controlLines[i][1][0];
-        }
-
-        else if (strcmp(controlLines[i][0],"Branch") == 0 || strcmp(controlLines[i][0],"branch") == 0)
-        {
-            controlLinesMemory[2] =controlLines[i][1][0];
-
-        }
-
-        else if (strcmp(controlLines[i][0],"Memread") == 0 || strcmp(controlLines[i][0],"memread") == 0)
-        {
-            controlLinesMemory[3] =controlLines[i][1][0];
-
-        }
-
-        else if (strcmp(controlLines[i][0],"Memtoreg") == 0 || strcmp(controlLines[i][0],"memtoreg") == 0)
-        {
-            controlLinesMemory[4] =controlLines[i][1][0];
-
-        }
-
-        else if (strcmp(controlLines[i][0],"Aluop") == 0 || strcmp(controlLines[i][0],"aluop") == 0)
-        {
-            controlLinesMemory[5] =controlLines[i][1][0];
-
-        }
-
-        else if (strcmp(controlLines[i][0],"Memwrite") == 0 || strcmp(controlLines[i][0],"memwrite") == 0)
-        {
-            controlLinesMemory[6] =controlLines[i][1][0];
-
-        }
-
-        else if (strcmp(controlLines[i][0],"Alusrc") == 0 || strcmp(controlLines[i][0],"alusrc") == 0)
-        {
-            controlLinesMemory[7] =controlLines[i][1][0];
-        }
-
-        else if (strcmp(controlLines[i][0],"Regwrite") == 0 || strcmp(controlLines[i][0],"regwrite") == 0)
-        {
-            controlLinesMemory[8] = controlLines[i][1][0];
-        }
-    }
-
-    return controlLinesMemory;
-}
-
-//Función encargada de escribir las instrucciones realizadas en el archivo de salida que contiene fp_output_name_1
-//Entradas: Una instruccion, un error en caso de haberlo, un booleano que indica si ya fue creado el archivo de salida y el nombre del archivo de salida
-//Salidas: Archivo de salida nuevo o modificado, agregando instrucciones ejecutadas.
-void writeInstructions(char ** instruction, char* error, bool* created_1, char* fp_output_name_1)
-{
-    if (*created_1 == false)
-    {
-        FILE *fp;
-        fp=fopen(fp_output_name_1, "w");
-        if(fp == NULL)
-        {
-            printf("Error al crear el archivo de salida 1\n");
-            exit (1);
-        }
-
-        if (strcmp(error,"") == 0)
-        {
-            if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-            {
-                fprintf(fp,"%s %s\n", instruction[0], instruction[1]);
-            }
-
-            if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
-            {
-                fprintf(fp,"%s %s %s\n", instruction[0], instruction[1], instruction[2]);
-            }
-
-            if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-                strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-                strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-                strcmp(instruction[0],"beq") == 0)
-
-            {
-                fprintf(fp,"%s %s %s %s\n", instruction[0], instruction[1], instruction[2], instruction[3]);
-            }
-
-            *created_1 = true;
-            fclose(fp);
-
-        }
-
-        else
-        {
-            printf("%s\n",error);
-            fprintf(fp, "%s\n", error);
-            fclose(fp);
-            exit(1);
-        }
-    }
-
-    else
-    {
-
-        FILE *fp;
-        fp=fopen(fp_output_name_1, "a");
-        if(fp == NULL)
-        {
-            printf("Error al modoficar el archivo %s\n", fp_output_name_1);
-            exit (1);
-        }
-
-        if (strcmp(error,"") == 0)
-        {
-            if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-            {
-                fprintf(fp,"%s %s\n", instruction[0], instruction[1]);
-            }
-
-
-            if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
-            {
-                fprintf(fp,"%s %s %s\n", instruction[0], instruction[1], instruction[2]);
-            }
-
-            if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-                strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-                strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-                strcmp(instruction[0],"beq") == 0)
-            {
-                fprintf(fp,"%s %s %s %s\n", instruction[0], instruction[1], instruction[2], instruction[3]);
-            }
-
-            fclose(fp);
-        }
-
-        else
-        {
-            printf("%s\n",error);
-            fprintf(fp, "%s\n", error);
-            fclose(fp);
-            exit(1);
-        }
-    }
-}
-
-//Función encargada de escribir los valores de los registros en el archivo de salida que contiene fp_output_name_2
-//Entradas: Arreglo con todos los registros y sus valores, instrucción ejecutada, un booleano que indica si ya fue creado el archivo de salida y el nombre del archivo de salida
-//Salidas: Archivo de salida nuevo o modificado, agregando valores registros para cada instruccion ejecutada.
-void writeRegisters(reg ** registersMemory, char ** instruction, bool* created_2, char* fp_output_name_2)
-{
-    if (*created_2 == false)
-    {
-        FILE *fp;
-        fp=fopen(fp_output_name_2, "w");
-
-        if(fp == NULL)
-        {
-            printf("Error al crear el archivo %s\n",fp_output_name_2);
-            exit(1);
-        }
-
-        fprintf(fp, "Instrucciones, $sp, $at, $fp, $v0, $v1, $a0, $a1, $a2, $a3, $t0, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7, $k0, $k1,$gp, $zero\n");
-
-
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",instruction[0],instruction[1]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-
-        if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
-        {
-            fprintf(fp, "%s %s %s,",instruction[0],instruction[1],instruction[2]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-            strcmp(instruction[0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-        *created_2 = true;
-        fclose(fp);
-
-    }
-
-    else
-    {
-        FILE *fp;
-        fp=fopen(fp_output_name_2, "a");
-
-        if(fp == NULL)
-        {
-            printf("Error al crear el archivo %s\n", fp_output_name_2);
-            exit(1);
-        }
-
-
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",instruction[0],instruction[1]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(instruction[0],"sw") == 0 ||  strcmp(instruction[0],"lw") == 0 )
-        {
-            fprintf(fp, "%s %s %s,",instruction[0],instruction[1],instruction[2]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
-            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
-            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0||
-            strcmp(instruction[0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
-            for (size_t i = 0; i < REGISTERSNUMBER; i++)
-            {
-                fprintf(fp, "%d,", registersMemory[i]->value);
-            }
-            fprintf(fp, "\n");
-        }
-
-        fclose(fp);
-    }
-}
-
 //Función encargada de generar un arreglo que contiene todos los registros, con su nombre y valores (inicialmente en 0), respectivamente.
 //Entradas: Ninguna.
 //Salidas: Arreglo de registros.
@@ -600,11 +335,10 @@ reg** populateRegisters()
     return registers;
 }
 
-void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2)
+void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2, int option, int cycle, int *PC, char *** instructions)
 {
     if (*created_2 == false)
     {
-        printf("holaaa %s\n",buffIF_ID->instruction_1[1][0] );
         FILE *fp;
         fp=fopen("file1.csv", "w");
 
@@ -613,94 +347,27 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
             printf("Error al crear el archivo %s\n","fp_output_name_2");
             exit(1);
         }
-
-        fprintf(fp,"Fetch , Identification, Execution, Memory, WriteBack,\n");
-
-        if (strcmp(buffIF_ID->instruction_2[1][0],"j") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"J") == 0 )
+        fprintf(fp,"Ciclo, Fetch , Identification, Execution, Memory, WriteBack,\n");
+        fprintf(fp,"%d,",cycle);
+        if ((strcmp(buffIF_ID->instruction_2[1],"j") == 0 || strcmp(buffIF_ID->instruction_2[1],"J") == 0) )
         {
-            fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1]);
-            fprintf(fp, "\n");
+            fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[1]);
         }
 
-        if (strcmp(buffIF_ID->instruction_2[1][0],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffIF_ID->instruction_2[1][0],"add") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffIF_ID->instruction_2[1][0],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"div") == 0||
-            strcmp(buffIF_ID->instruction_2[1][0],"beq") == 0)
+        if ((strcmp(buffIF_ID->instruction_2[1],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1],"sub") == 0 ||
+            strcmp(buffIF_ID->instruction_2[1],"add") == 0  || strcmp(buffIF_ID->instruction_2[1],"addi") == 0 ||
+            strcmp(buffIF_ID->instruction_2[1],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1],"div") == 0||
+            strcmp(buffIF_ID->instruction_2[1],"beq") == 0) )
         {
-            fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1],buffIF_ID->instruction_2[1][2],buffIF_ID->instruction_2[1][3]);
-            fprintf(fp, "\n");
+            fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
         }
 
-        ///////////////////////
-
-        if (strcmp(buffID_EX->instruction_2[1][0],"j") == 0 || strcmp(buffID_EX->instruction_2[1][0],"J") == 0 )
+        if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0) )
         {
-            fprintf(fp, "%s %s,",buffID_EX->instruction_2[1][0],buffID_EX->instruction_2[1][1]);
-            fprintf(fp, "\n");
+            fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
         }
 
-        if (strcmp(buffID_EX->instruction_2[1][0],"subi") == 0 || strcmp(buffID_EX->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffID_EX->instruction_2[1][0],"add") == 0  || strcmp(buffID_EX->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffID_EX->instruction_2[1][0],"mul") == 0  || strcmp(buffID_EX->instruction_2[1][0],"div") == 0||
-            strcmp(buffID_EX->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1][0],buffID_EX->instruction_2[1][1],buffID_EX->instruction_2[1][2],buffID_EX->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffEX_MEM->instruction_2[1][0],"j") == 0 || strcmp(buffEX_MEM->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffEX_MEM->instruction_2[1][0],buffEX_MEM->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffEX_MEM->instruction_2[1][0],"subi") == 0 || strcmp(buffEX_MEM->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffEX_MEM->instruction_2[1][0],"add") == 0  || strcmp(buffEX_MEM->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffEX_MEM->instruction_2[1][0],"mul") == 0  || strcmp(buffEX_MEM->instruction_2[1][0],"div") == 0||
-            strcmp(buffEX_MEM->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffEX_MEM->instruction_2[1][0],buffEX_MEM->instruction_2[1][1],buffEX_MEM->instruction_2[1][2],buffEX_MEM->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffMEM_WB->instruction_2[1][0],"j") == 0 || strcmp(buffMEM_WB->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffMEM_WB->instruction_2[1][0],buffMEM_WB->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffMEM_WB->instruction_2[1][0],"subi") == 0 || strcmp(buffMEM_WB->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffMEM_WB->instruction_2[1][0],"add") == 0  || strcmp(buffMEM_WB->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffMEM_WB->instruction_2[1][0],"mul") == 0  || strcmp(buffMEM_WB->instruction_2[1][0],"div") == 0||
-            strcmp(buffMEM_WB->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffMEM_WB->instruction_2[1][0],buffMEM_WB->instruction_2[1][1],buffMEM_WB->instruction_2[1][2],buffMEM_WB->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-
-
-        ///////////////////////////
-
-        if (strcmp(buffMWB_END->instruction_2[1][0],"j") == 0 || strcmp(buffMWB_END->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffMWB_END->instruction_2[1][0],buffMWB_END->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffMWB_END->instruction_2[1][0],"subi") == 0 || strcmp(buffMWB_END->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffMWB_END->instruction_2[1][0],"add") == 0  || strcmp(buffMWB_END->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffMWB_END->instruction_2[1][0],"mul") == 0  || strcmp(buffMWB_END->instruction_2[1][0],"div") == 0||
-            strcmp(buffMWB_END->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffMWB_END->instruction_2[1][0],buffMWB_END->instruction_2[1][1],buffMWB_END->instruction_2[1][2],buffMWB_END->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
+        fprintf(fp, "\n");
         *created_2 = true;
         fclose(fp);
 
@@ -716,90 +383,350 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
             printf("Error al crear el archivo %s\n", "fp_output_name_2");
             exit(1);
         }
-        if (strcmp(buffIF_ID->instruction_2[1][0],"j") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"J") == 0 )
+
+        switch (option)
         {
-            fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1]);
-            fprintf(fp, "\n");
+            case 2:
+                fprintf(fp,"%d,",cycle);
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"j") == 0 || strcmp(buffIF_ID->instruction_2[1],"J") == 0))
+                {
+                    fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"add") == 0  || strcmp(buffIF_ID->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1],"div") == 0||
+                    strcmp(buffIF_ID->instruction_2[1],"beq") == 0))
+                {
+                    fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0))
+                {
+                    fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
+                }
+
+                ///////////////////////
+
+                if ((strcmp(buffID_EX->instruction_2[1],"j") == 0 || strcmp(buffID_EX->instruction_2[1],"J") == 0) )
+                {
+                    fprintf(fp, "%s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"subi") == 0 || strcmp(buffID_EX->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"add") == 0  || strcmp(buffID_EX->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"mul") == 0  || strcmp(buffID_EX->instruction_2[1],"div") == 0||
+                    strcmp(buffID_EX->instruction_2[1],"beq") == 0) )
+                {
+                    fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3],buffID_EX->instruction_2[4]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"sw") == 0 || strcmp(buffID_EX->instruction_2[1],"lw") == 0)  )
+                {
+                    fprintf(fp, "%s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3]);
+                }
+
+                break;
+
+            case 3:
+                fprintf(fp,"%d,",cycle);
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"j") == 0 || strcmp(buffIF_ID->instruction_2[1],"J") == 0))
+                {
+                    fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"add") == 0  || strcmp(buffIF_ID->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1],"div") == 0||
+                    strcmp(buffIF_ID->instruction_2[1],"beq") == 0))
+                {
+                    fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0))
+                {
+                    fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
+                }
+
+                ///////////////////////
+
+                if ((strcmp(buffID_EX->instruction_2[1],"j") == 0 || strcmp(buffID_EX->instruction_2[1],"J") == 0))
+                {
+                    fprintf(fp, "%s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"subi") == 0 || strcmp(buffID_EX->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"add") == 0  || strcmp(buffID_EX->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"mul") == 0  || strcmp(buffID_EX->instruction_2[1],"div") == 0||
+                    strcmp(buffID_EX->instruction_2[1],"beq") == 0))
+                {
+                    fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3],buffID_EX->instruction_2[4]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"sw") == 0 || strcmp(buffID_EX->instruction_2[1],"lw") == 0))
+                {
+                    fprintf(fp, "%s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3]);
+                }
+
+                /////////////////////////
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"j") == 0 || strcmp(buffEX_MEM->instruction_2[1],"J") == 0) )
+                {
+                    fprintf(fp, "%s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2]);
+                }
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"subi") == 0 || strcmp(buffEX_MEM->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffEX_MEM->instruction_2[1],"add") == 0  || strcmp(buffEX_MEM->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffEX_MEM->instruction_2[1],"mul") == 0  || strcmp(buffEX_MEM->instruction_2[1],"div") == 0||
+                    strcmp(buffEX_MEM->instruction_2[1],"beq") == 0) )
+                {
+                    fprintf(fp, "%s %s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3],buffEX_MEM->instruction_2[4]);
+                }
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"sw") == 0 || strcmp(buffEX_MEM->instruction_2[1],"lw") == 0) )
+                {
+                    fprintf(fp, "%s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3]);
+                }
+
+                break;
+
+            case 4:
+                fprintf(fp,"%d,",cycle);
+                if ((strcmp(buffIF_ID->instruction_2[1],"j") == 0 || strcmp(buffIF_ID->instruction_2[1],"J") == 0))
+                {
+                    fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"add") == 0  || strcmp(buffIF_ID->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffIF_ID->instruction_2[1],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1],"div") == 0||
+                    strcmp(buffIF_ID->instruction_2[1],"beq") == 0))
+                {
+                    fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
+                }
+
+                if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0))
+                {
+                    fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
+                }
+
+
+                ///////////////////////
+
+                if ((strcmp(buffID_EX->instruction_2[1],"j") == 0 || strcmp(buffID_EX->instruction_2[1],"J") == 0)  )
+                {
+                    fprintf(fp, "%s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"subi") == 0 || strcmp(buffID_EX->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"add") == 0  || strcmp(buffID_EX->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffID_EX->instruction_2[1],"mul") == 0  || strcmp(buffID_EX->instruction_2[1],"div") == 0||
+                    strcmp(buffID_EX->instruction_2[1],"beq") == 0) )
+                {
+                    fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3],buffID_EX->instruction_2[4]);
+                }
+
+                if ((strcmp(buffID_EX->instruction_2[1],"sw") == 0 || strcmp(buffID_EX->instruction_2[1],"lw") == 0)  )
+                {
+                    fprintf(fp, "%s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3]);
+                }
+
+                /////////////////////////
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"j") == 0 || strcmp(buffEX_MEM->instruction_2[1],"J") == 0) )
+                {
+                    fprintf(fp, "%s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2]);
+                }
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"subi") == 0 || strcmp(buffEX_MEM->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffEX_MEM->instruction_2[1],"add") == 0  || strcmp(buffEX_MEM->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffEX_MEM->instruction_2[1],"mul") == 0  || strcmp(buffEX_MEM->instruction_2[1],"div") == 0||
+                    strcmp(buffEX_MEM->instruction_2[1],"beq") == 0) )
+                {
+                    fprintf(fp, "%s %s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3],buffEX_MEM->instruction_2[4]);
+                }
+
+                if ((strcmp(buffEX_MEM->instruction_2[1],"sw") == 0 || strcmp(buffEX_MEM->instruction_2[1],"lw")) == 0 )
+                {
+                    fprintf(fp, "%s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3]);
+                }
+
+
+                /////////////////////////
+
+                if ((strcmp(buffMEM_WB->instruction_2[1],"j") == 0 || strcmp(buffMEM_WB->instruction_2[1],"J") == 0) )
+                {
+                    fprintf(fp, "%s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2]);
+                }
+
+                if ((strcmp(buffMEM_WB->instruction_2[1],"subi") == 0 || strcmp(buffMEM_WB->instruction_2[1],"sub") == 0 ||
+                    strcmp(buffMEM_WB->instruction_2[1],"add") == 0  || strcmp(buffMEM_WB->instruction_2[1],"addi") == 0 ||
+                    strcmp(buffMEM_WB->instruction_2[1],"mul") == 0  || strcmp(buffMEM_WB->instruction_2[1],"div") == 0||
+                    strcmp(buffMEM_WB->instruction_2[1],"beq") == 0))
+                {
+                    fprintf(fp, "%s %s %s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2],buffMEM_WB->instruction_2[3],buffMEM_WB->instruction_2[4]);
+                }
+
+                if ((strcmp(buffMEM_WB->instruction_2[1],"sw") == 0 || strcmp(buffMEM_WB->instruction_2[1],"lw") == 0))
+                {
+                    fprintf(fp, "%s %s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2],buffMEM_WB->instruction_2[3]);
+                }
+
+                break;
+
+            case 5:
+                fprintf(fp,"%d,",cycle);
+                printf("Soy PC %d %d \n", *PC, atoi(instructions[0][0]));
+                if (*PC >= atoi(instructions[0][0]) + 1)
+                {
+                    fprintf(fp, " ,");
+                }
+
+                else
+                {
+                    if ((strcmp(buffIF_ID->instruction_2[1],"j") == 0 || strcmp(buffIF_ID->instruction_2[1],"J") == 0))
+                    {
+                        fprintf(fp, "%s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2]);
+                    }
+
+                    if ((strcmp(buffIF_ID->instruction_2[1],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1],"sub") == 0 ||
+                        strcmp(buffIF_ID->instruction_2[1],"add") == 0  || strcmp(buffIF_ID->instruction_2[1],"addi") == 0 ||
+                        strcmp(buffIF_ID->instruction_2[1],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1],"div") == 0||
+                        strcmp(buffIF_ID->instruction_2[1],"beq") == 0))
+                    {
+                        fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
+                    }
+
+                    if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0))
+                    {
+                        fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
+                    }
+
+                }
+
+                ///////////////////////
+
+                if (*PC >= atoi(instructions[0][0]) + 2)
+                {
+                    fprintf(fp, " ,");
+                }
+
+                else
+                {
+                    if ((strcmp(buffID_EX->instruction_2[1],"j") == 0 || strcmp(buffID_EX->instruction_2[1],"J") == 0) )
+                    {
+                        fprintf(fp, "%s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2]);
+                    }
+
+                    if ((strcmp(buffID_EX->instruction_2[1],"subi") == 0 || strcmp(buffID_EX->instruction_2[1],"sub") == 0 ||
+                        strcmp(buffID_EX->instruction_2[1],"add") == 0  || strcmp(buffID_EX->instruction_2[1],"addi") == 0 ||
+                        strcmp(buffID_EX->instruction_2[1],"mul") == 0  || strcmp(buffID_EX->instruction_2[1],"div") == 0||
+                        strcmp(buffID_EX->instruction_2[1],"beq") == 0))
+                    {
+                        fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3],buffID_EX->instruction_2[4]);
+                    }
+
+                    if ((strcmp(buffID_EX->instruction_2[1],"sw") == 0 || strcmp(buffID_EX->instruction_2[1],"lw") == 0) )
+                    {
+                        fprintf(fp, "%s %s %s,",buffID_EX->instruction_2[1],buffID_EX->instruction_2[2],buffID_EX->instruction_2[3]);
+                    }
+                }
+
+
+                /////////////////////////
+
+                if (*PC >= atoi(instructions[0][0]) + 3)
+                {
+                    fprintf(fp, " ,");
+                }
+
+                else
+                {
+                    if ((strcmp(buffEX_MEM->instruction_2[1],"j") == 0 || strcmp(buffEX_MEM->instruction_2[1],"J") == 0))
+                    {
+                        fprintf(fp, "%s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2]);
+                    }
+
+                    if ((strcmp(buffEX_MEM->instruction_2[1],"subi") == 0 || strcmp(buffEX_MEM->instruction_2[1],"sub") == 0 ||
+                        strcmp(buffEX_MEM->instruction_2[1],"add") == 0  || strcmp(buffEX_MEM->instruction_2[1],"addi") == 0 ||
+                        strcmp(buffEX_MEM->instruction_2[1],"mul") == 0  || strcmp(buffEX_MEM->instruction_2[1],"div") == 0||
+                        strcmp(buffEX_MEM->instruction_2[1],"beq") == 0))
+                    {
+                        fprintf(fp, "%s %s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3],buffEX_MEM->instruction_2[4]);
+                    }
+
+                    if ((strcmp(buffEX_MEM->instruction_2[1],"sw") == 0 || strcmp(buffEX_MEM->instruction_2[1],"lw") == 0))
+                    {
+                        fprintf(fp, "%s %s %s,",buffEX_MEM->instruction_2[1],buffEX_MEM->instruction_2[2],buffEX_MEM->instruction_2[3]);
+                    }
+
+                }
+
+                /////////////////////////
+
+                if (*PC >= atoi(instructions[0][0]) + 4)
+                {
+                    fprintf(fp, " ,");
+                }
+
+                else
+                {
+                    if ((strcmp(buffMEM_WB->instruction_2[1],"j") == 0 || strcmp(buffMEM_WB->instruction_2[1],"J") == 0) )
+                    {
+                        fprintf(fp, "%s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2]);
+                    }
+
+                    if ((strcmp(buffMEM_WB->instruction_2[1],"subi") == 0 || strcmp(buffMEM_WB->instruction_2[1],"sub") == 0 ||
+                        strcmp(buffMEM_WB->instruction_2[1],"add") == 0  || strcmp(buffMEM_WB->instruction_2[1],"addi") == 0 ||
+                        strcmp(buffMEM_WB->instruction_2[1],"mul") == 0  || strcmp(buffMEM_WB->instruction_2[1],"div") == 0||
+                        strcmp(buffMEM_WB->instruction_2[1],"beq") == 0))
+                    {
+                        fprintf(fp, "%s %s %s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2],buffMEM_WB->instruction_2[3],buffMEM_WB->instruction_2[4]);
+                    }
+
+                    if ((strcmp(buffMEM_WB->instruction_2[1],"sw") == 0 || strcmp(buffMEM_WB->instruction_2[1],"lw") == 0))
+
+                    {
+                        fprintf(fp, "%s %s %s,",buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2],buffMEM_WB->instruction_2[3]);
+                    }
+                }
+
+
+                ///////////////////////////
+
+                if (*PC >= atoi(instructions[0][0]) + 5)
+                {
+                    fprintf(fp, " ,");
+                }
+                else
+                {
+                    if ((strcmp(buffMWB_END->instruction_2[1],"j") == 0 || strcmp(buffMWB_END->instruction_2[1],"J") == 0))
+                    {
+                        fprintf(fp, "%s %s,",buffMWB_END->instruction_2[1],buffMWB_END->instruction_2[2]);
+                    }
+
+                    if ((strcmp(buffMWB_END->instruction_2[1],"subi") == 0 || strcmp(buffMWB_END->instruction_2[1],"sub") == 0 ||
+                        strcmp(buffMWB_END->instruction_2[1],"add") == 0  || strcmp(buffMWB_END->instruction_2[1],"addi") == 0 ||
+                        strcmp(buffMWB_END->instruction_2[1],"mul") == 0  || strcmp(buffMWB_END->instruction_2[1],"div") == 0||
+                        strcmp(buffMWB_END->instruction_2[1],"beq") == 0) )
+                    {
+                        fprintf(fp, "%s %s %s %s,",buffMWB_END->instruction_2[1],buffMWB_END->instruction_2[2],buffMWB_END->instruction_2[3],buffMWB_END->instruction_2[4]);
+                    }
+
+                    if ((strcmp(buffMWB_END->instruction_2[1],"sw") == 0 || strcmp(buffMWB_END->instruction_2[1],"lw") == 0) )
+                    {
+                        fprintf(fp, "%s %s %s,",buffMWB_END->instruction_2[1],buffMWB_END->instruction_2[2],buffMWB_END->instruction_2[3]);
+                    }
+
+                }
+
+                break;
         }
 
-        if (strcmp(buffIF_ID->instruction_2[1][0],"subi") == 0 || strcmp(buffIF_ID->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffIF_ID->instruction_2[1][0],"add") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffIF_ID->instruction_2[1][0],"mul") == 0  || strcmp(buffIF_ID->instruction_2[1][0],"div") == 0||
-            strcmp(buffIF_ID->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1][0],buffIF_ID->instruction_2[1][1],buffIF_ID->instruction_2[1][2],buffIF_ID->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
+        fprintf(fp, "\n");
 
-        ///////////////////////
-
-        if (strcmp(buffID_EX->instruction_2[1][0],"j") == 0 || strcmp(buffID_EX->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffID_EX->instruction_2[1][0],buffID_EX->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffID_EX->instruction_2[1][0],"subi") == 0 || strcmp(buffID_EX->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffID_EX->instruction_2[1][0],"add") == 0  || strcmp(buffID_EX->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffID_EX->instruction_2[1][0],"mul") == 0  || strcmp(buffID_EX->instruction_2[1][0],"div") == 0||
-            strcmp(buffID_EX->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffID_EX->instruction_2[1][0],buffID_EX->instruction_2[1][1],buffID_EX->instruction_2[1][2],buffID_EX->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffEX_MEM->instruction_2[1][0],"j") == 0 || strcmp(buffEX_MEM->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffEX_MEM->instruction_2[1][0],buffEX_MEM->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffEX_MEM->instruction_2[1][0],"subi") == 0 || strcmp(buffEX_MEM->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffEX_MEM->instruction_2[1][0],"add") == 0  || strcmp(buffEX_MEM->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffEX_MEM->instruction_2[1][0],"mul") == 0  || strcmp(buffEX_MEM->instruction_2[1][0],"div") == 0||
-            strcmp(buffEX_MEM->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffEX_MEM->instruction_2[1][0],buffEX_MEM->instruction_2[1][1],buffEX_MEM->instruction_2[1][2],buffEX_MEM->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-        /////////////////////////
-
-        if (strcmp(buffMEM_WB->instruction_2[1][0],"j") == 0 || strcmp(buffMEM_WB->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffMEM_WB->instruction_2[1][0],buffMEM_WB->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffMEM_WB->instruction_2[1][0],"subi") == 0 || strcmp(buffMEM_WB->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffMEM_WB->instruction_2[1][0],"add") == 0  || strcmp(buffMEM_WB->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffMEM_WB->instruction_2[1][0],"mul") == 0  || strcmp(buffMEM_WB->instruction_2[1][0],"div") == 0||
-            strcmp(buffMEM_WB->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffMEM_WB->instruction_2[1][0],buffMEM_WB->instruction_2[1][1],buffMEM_WB->instruction_2[1][2],buffMEM_WB->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
-
-
-
-        ///////////////////////////
-
-        if (strcmp(buffMWB_END->instruction_2[1][0],"j") == 0 || strcmp(buffMWB_END->instruction_2[1][0],"J") == 0 )
-        {
-            fprintf(fp, "%s %s,",buffMWB_END->instruction_2[1][0],buffMWB_END->instruction_2[1][1]);
-            fprintf(fp, "\n");
-        }
-
-        if (strcmp(buffMWB_END->instruction_2[1][0],"subi") == 0 || strcmp(buffMWB_END->instruction_2[1][0],"sub") == 0 ||
-            strcmp(buffMWB_END->instruction_2[1][0],"add") == 0  || strcmp(buffMWB_END->instruction_2[1][0],"addi") == 0 ||
-            strcmp(buffMWB_END->instruction_2[1][0],"mul") == 0  || strcmp(buffMWB_END->instruction_2[1][0],"div") == 0||
-            strcmp(buffMWB_END->instruction_2[1][0],"beq") == 0)
-        {
-            fprintf(fp, "%s %s %s %s,",buffMWB_END->instruction_2[1][0],buffMWB_END->instruction_2[1][1],buffMWB_END->instruction_2[1][2],buffMWB_END->instruction_2[1][3]);
-            fprintf(fp, "\n");
-        }
         fclose(fp);
     }
 }
@@ -808,7 +735,7 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
 {
     if (buffIF_ID->status == false)
     {
-        /* code */
+        *PC+=1;
     }
 
     else
@@ -817,6 +744,8 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
         int lenInstruction = instructions[*PC][0] - '0';
         buffIF_ID->instruction_1 = malloc(sizeof(char*)*(lenInstruction+2));
         buffIF_ID->instruction_1[0] = instructions[*PC][0];
+        buffIF_ID->instruction_2 = malloc(sizeof(char*)*(lenInstruction+2));
+        memcpy(buffIF_ID->instruction_2, instructions[*PC], sizeof(char*)*(lenInstruction+2));
 
         // lw $t0 $t1 1000 = lw $t0 1000($t1)
         if (strcmp(instructions[*PC][1],"sw") == 0 || strcmp(instructions[*PC][1],"lw") == 0 )
@@ -887,7 +816,7 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
     }
 }
 
-void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** registersMemory)
+void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** registersMemory, char*** instructions, int*PC)
 {
     if (buffID_EX->status == false)
     {
@@ -900,15 +829,13 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** regist
         int lenInstruction = buffIF_ID->instruction_1[0] - '0';
         buffID_EX->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffID_EX->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
-
-        buffID_EX->instruction_1 = buffIF_ID->instruction_1;
-        buffID_EX->instruction_2 = buffIF_ID->instruction_1;
+        memcpy(buffID_EX->instruction_2, buffIF_ID->instruction_2, sizeof(char*)*(lenInstruction+1));
+        memcpy(buffID_EX->instruction_1, buffIF_ID->instruction_1, sizeof(char*)*(lenInstruction+1));
 
         //Listo
         if (strcmp(buffIF_ID->instruction_1[1],"sub") == 0 || strcmp(buffIF_ID->instruction_1[1],"subi") == 0 ||
             strcmp(buffIF_ID->instruction_1[1],"add") == 0 || strcmp(buffIF_ID->instruction_1[1],"addi") == 0 ||
-            strcmp(buffIF_ID->instruction_1[1],"mul") == 0 || strcmp(buffIF_ID->instruction_1[1],"div") == 0  ||
-            strcmp(buffIF_ID->instruction_1[1],"beq") == 0)
+            strcmp(buffIF_ID->instruction_1[1],"mul") == 0 || strcmp(buffIF_ID->instruction_1[1],"div") == 0)
         {
             int j;
 
@@ -1196,8 +1123,8 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
         int lenInstruction = buffID_EX->instruction_1[0] - '0';
         buffEX_MEM->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffEX_MEM->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
-        buffEX_MEM->instruction_1 = buffID_EX->instruction_1;
-        buffEX_MEM->instruction_2 = buffID_EX->instruction_1;
+        memcpy(buffEX_MEM->instruction_2, buffID_EX->instruction_2, sizeof(char*)*(lenInstruction+1));
+        memcpy(buffEX_MEM->instruction_1, buffID_EX->instruction_1, sizeof(char*)*(lenInstruction+1));
 
         //En caso de que la instrucción sea j
         if (strcmp(buffID_EX->instruction_1[1],"j") == 0)
@@ -1218,6 +1145,37 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
 
             *PC = j;
         }
+
+
+        else if (strcmp(buffID_EX->instruction_1[1],"beq") == 0)
+        {
+            //Si linea de control jump no tiene stuck at 0
+            char * label = malloc(sizeof(char)*(strlen(buffID_EX->instruction_1[4])+1));
+            strcpy(label, buffID_EX->instruction_1[4]);
+            strcat(label, ":\0");
+
+            int j;
+            for (j = 1; j < atoi(instructions[0][0]); j++)
+            {
+                if (strcmp(instructions[j][1],label) == 0)
+                {
+                    break;
+                }
+            }
+            buffID_EX->previus_PC = *PC;
+            *PC = j+1;
+        }
+
+        // else if (strcmp(buffID_EX->instruction_1[1],"beq") == 0)
+        // {
+        //     int variable_1 = atoi(buffID_EX->instruction_1[2]);
+        //     int variable_2 = atoi(buffID_EX->instruction_1[3]);
+        //
+        //     if(variable_1 != variable_2)
+        //     {
+        //         *PC = buffID_EX->previus_PC;
+        //     }
+        // }
 
         else if (strcmp(buffID_EX->instruction_1[1],"sub") == 0 || strcmp(buffID_EX->instruction_1[1],"subi") == 0)
         {
@@ -1308,8 +1266,8 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
         int lenInstruction = buffEX_MEM->instruction_1[0] - '0';
         buffMEM_WB->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffMEM_WB->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
-        buffMEM_WB->instruction_1 = buffEX_MEM->instruction_1;
-        buffMEM_WB->instruction_2 = buffEX_MEM->instruction_1;
+        memcpy(buffMEM_WB->instruction_2, buffEX_MEM->instruction_2, sizeof(char*)*(lenInstruction+1));
+        memcpy(buffMEM_WB->instruction_1, buffEX_MEM->instruction_1, sizeof(char*)*(lenInstruction+1));
 
         //En caso de que la instrucción sea j
         if (strcmp(buffEX_MEM->instruction_1[1],"j") == 0)
@@ -1368,8 +1326,9 @@ void writeBack(bufferMEM_WB* buffMEM_WB, bufferMWB_END* buffMWB_END,reg** regist
         int lenInstruction = buffMEM_WB->instruction_1[0] - '0';
         buffMWB_END->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffMWB_END->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
-        buffMWB_END->instruction_1 = buffMEM_WB->instruction_1;
-        buffMWB_END->instruction_2 = buffMEM_WB->instruction_1;
+        memcpy(buffMWB_END->instruction_2, buffMEM_WB->instruction_2, sizeof(char*)*(lenInstruction+1));
+        memcpy(buffMWB_END->instruction_1, buffMEM_WB->instruction_1, sizeof(char*)*(lenInstruction+1));
+
         int j;
 
         if (strcmp(buffMEM_WB->instruction_1[1],"sub") == 0 || strcmp(buffMEM_WB->instruction_1[1],"subi") == 0 ||
@@ -1490,47 +1449,54 @@ int main(int argc, char** argv)
     int PC = 1;
     int lenInstructions = atoi(instructions[0][0]);
     int option = 1;
-    int count = 1;
+    int cycle = 1;
 
     while(buffIF_ID->status == true || buffID_EX->status == true || buffEX_MEM->status == true ||
           buffMEM_WB->status == true || buffMWB_END->status == true)
     {
-        printf("Ciclo %d\n", count);
-        count++;
+        printf("Ciclo %d\n", cycle);
         switch (option)
         {
             case 1 :
 
                 fetch(buffIF_ID,instructions,&PC);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+
                 option = 2;
                 break;
             case 2 :
-                identification(buffIF_ID,buffID_EX,registersMemory);
+                identification(buffIF_ID,buffID_EX,registersMemory, instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
                 option = 3;
                 break;
             case 3 :
                 execution(buffID_EX,buffEX_MEM,&PC, instructions);
-                identification(buffIF_ID,buffID_EX,registersMemory);
+                identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+
                 option = 4;
                 break;
             case 4 :
                 memory(buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory);
                 execution(buffID_EX,buffEX_MEM,&PC, instructions);
-                identification(buffIF_ID,buffID_EX,registersMemory);
+                identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+
                 option = 5;
                 break;
             case 5 :
                 writeBack(buffMEM_WB,buffMWB_END, registersMemory);
                 memory(buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory);
                 execution(buffID_EX,buffEX_MEM,&PC, instructions);
-                identification(buffIF_ID,buffID_EX,registersMemory);
+                identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
                 break;
         }
-        writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2);
+        cycle++;
 
     }
 

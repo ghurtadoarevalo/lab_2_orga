@@ -34,6 +34,9 @@ typedef struct {
 
 	char** instruction_1;
 	char** instruction_2;
+
+	int previus_PC;
+
 } bufferID_EX;
 
 typedef struct {
