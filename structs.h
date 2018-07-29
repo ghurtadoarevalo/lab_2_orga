@@ -55,6 +55,9 @@ typedef struct {
 	char** instruction_1;
 	char** instruction_2;
 
+	int previus_PC;
+
+
 } bufferEX_MEM;
 
 typedef struct {
