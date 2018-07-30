@@ -14,6 +14,8 @@ typedef struct {
 	bool status;
 	char** instruction_1;
 	char** instruction_2;
+
+	bool block;
 } bufferIF_ID;
 
 typedef struct {
@@ -37,6 +39,9 @@ typedef struct {
 
 	int previus_PC;
 
+	bool block;
+
+
 } bufferID_EX;
 
 typedef struct {
@@ -56,6 +61,7 @@ typedef struct {
 	char** instruction_2;
 
 	int previus_PC;
+	bool block;
 
 
 } bufferEX_MEM;
@@ -71,6 +77,8 @@ typedef struct {
 
 	int alu_result;
 	int memory_data;
+	bool block;
+
 } bufferMEM_WB;
 
 typedef struct {
@@ -78,6 +86,8 @@ typedef struct {
 
 	char** instruction_1;
 	char** instruction_2;
+	bool block;
+
 } bufferMWB_END;
 
 
