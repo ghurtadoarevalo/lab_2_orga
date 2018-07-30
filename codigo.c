@@ -577,9 +577,14 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
 
             case 5:
                 fprintf(fp,"%d,",cycle);
-                if (*PC >= atoi(instructions[0][0]) + 1)
+                // if (*PC >= atoi(instructions[0][0]) + 1)
+                // {
+                //     fprintf(fp, " ,");
+                // }
+
+                if (buffIF_ID->instruction_2 == NULL)
                 {
-                    fprintf(fp, " ,");
+                    fprintf(fp, "NOP ,");
                 }
 
                 else
@@ -595,21 +600,21 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
                         strcmp(buffIF_ID->instruction_2[1],"beq") == 0))
                     {
                         fprintf(fp, "%s %s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
+
                     }
 
                     if ((strcmp(buffIF_ID->instruction_2[1],"sw") == 0 || strcmp(buffIF_ID->instruction_2[1],"lw") == 0))
                     {
                         fprintf(fp, "%s %s %s,",buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3]);
                     }
-
                 }
 
                 ///////////////////////
 
-                if (*PC >= atoi(instructions[0][0]) + 2)
-                {
-                    fprintf(fp, " ,");
-                }
+                // if (*PC >= atoi(instructions[0][0]) + 2)
+                // {
+                //     fprintf(fp, " ,");
+                // }
 
                 if (buffID_EX->instruction_2 == NULL)
                 {
@@ -640,9 +645,14 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
 
                 /////////////////////////
 
-                if (*PC >= atoi(instructions[0][0]) + 3)
+                // if (*PC >= atoi(instructions[0][0]) + 3)
+                // {
+                //     fprintf(fp, " ,");
+                // }
+
+                if (buffEX_MEM->instruction_2 == NULL)
                 {
-                    fprintf(fp, " ,");
+                    fprintf(fp, "NOP ,");
                 }
 
                 else
@@ -669,9 +679,14 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
 
                 /////////////////////////
 
-                if (*PC >= atoi(instructions[0][0]) + 4)
+                // if (*PC >= atoi(instructions[0][0]) + 4)
+                // {
+                //     fprintf(fp, " ,");
+                // }
+
+                if (buffMEM_WB->instruction_2 == NULL)
                 {
-                    fprintf(fp, " ,");
+                    fprintf(fp, "NOP ,");
                 }
 
                 else
@@ -699,10 +714,16 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
 
                 ///////////////////////////
 
-                if (*PC >= atoi(instructions[0][0]) + 5)
+                // if (*PC >= atoi(instructions[0][0]) + 5)
+                // {
+                //     fprintf(fp, " ,");
+                // }
+
+                if (buffMWB_END->instruction_2 == NULL)
                 {
-                    fprintf(fp, " ,");
+                    fprintf(fp, "NOP ,");
                 }
+
                 else
                 {
                     if ((strcmp(buffMWB_END->instruction_2[1],"j") == 0 || strcmp(buffMWB_END->instruction_2[1],"J") == 0))
@@ -740,11 +761,20 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
 
     if (buffIF_ID->status == false)
     {
-        *PC+=1;
+        printf("%s\n","Apagado");
+        buffIF_ID->instruction_2 = NULL;
     }
 
     else
     {
+
+        if(instructions[*PC][0] - '0' == 1)
+        {
+            printf("%s\n", instructions[*PC][1]);
+            *PC +=1;
+            printf("%s %s %s %s\n",instructions[*PC][1], instructions[*PC][2], instructions[*PC][3], instructions[*PC][4]);
+        }
+
         int lenInstruction = instructions[*PC][0] - '0';
         buffIF_ID->instruction_1 = malloc(sizeof(char*)*(lenInstruction+2));
         buffIF_ID->instruction_1[0] = instructions[*PC][0];
@@ -788,28 +818,27 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
             }
         }
 
-        buffIF_ID->block = false;
 
 
-        printf("%s %s %s %s\n", buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
-
+        //printf("%s %s %s %s\n", buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
         printf("\n");
 
-        *PC+=1;
+        if(instructions[*PC-1][0] - '0' == 1)
+        {
+            printf("SOYYYYYYYYYY PC %d\n", *PC );
+            printf("%s %s %s %s\n",buffIF_ID->instruction_1[1], buffIF_ID->instruction_1[2], buffIF_ID->instruction_1[3], buffIF_ID->instruction_1[4]);
+        }
 
+        else
+        {
+            *PC+=1;
+        }
 
-        if (*PC == atoi(instructions[0][0]))
+        if (*PC == atoi(instructions[0][0])-1)
         {
             buffIF_ID->status = false;
         }
 
-
-        buffIF_ID->block = false;
-
-
-        printf("%s %s %s %s\n", buffIF_ID->instruction_2[1],buffIF_ID->instruction_2[2],buffIF_ID->instruction_2[3],buffIF_ID->instruction_2[4]);
-
-        printf("\n");
 
     }
 
@@ -821,17 +850,18 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** regist
 {
     printf("%s\n","///////////////////// Inicio Identification /////////////////////////" );
 
-    int lenInstruction = buffIF_ID->instruction_2[0] - '0';
 
     if (buffID_EX->status == false)
     {
+        buffID_EX->instruction_2 = NULL;
+        printf("%s\n","Apagado");
     }
 
     else if(buffID_EX->block == true)
     {
-        printf("%s %s %s\n","me bloquearon", buffIF_ID->instruction_2[1], buffIF_ID->instruction_2[2] );
         buffID_EX->instruction_1 = NULL;
         buffID_EX->instruction_2 = NULL;
+        buffID_EX->block = false;
     }
 
     else
@@ -1125,33 +1155,6 @@ void identification(bufferIF_ID* buffIF_ID, bufferID_EX* buffID_EX, reg** regist
         }
 
 
-        // //DEBUg
-        // if ( (strcmp(buffID_EX->instruction_1[1], "end:") == 0))
-        // {
-        //     //printf("%c\n", buffID_EX->instruction_1[0]);
-        //     printf("%s\n", buffID_EX->instruction_1[1]);
-        //     printf("\n");
-        // }
-        //
-        // else if((strcmp(buffID_EX->instruction_1[1],"j") == 0))
-        // {
-        //     //printf("%c\n", buffID_EX->instruction_1[0]);
-        //     printf("%s\n", buffID_EX->instruction_1[1]);
-        //     printf("%s\n", buffID_EX->instruction_1[2]);
-        //     printf("\n");
-        //
-        // }
-        //
-        // else
-        // {
-        //     //printf("%c\n", buffID_EX->instruction_1[0]);
-        //     printf("%s\n", buffID_EX->instruction_1[1]);
-        //     printf("%s\n", buffID_EX->instruction_1[2]);
-        //     printf("%s\n", buffID_EX->instruction_1[3]);
-        //     printf("%s\n", buffID_EX->instruction_1[4]);
-        //     printf("\n");
-        // }
-
         if (buffIF_ID->status == false)
         {
             buffID_EX->status = false;
@@ -1172,26 +1175,26 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
 {
     printf("%s\n","///////////////////// Inicio Execution /////////////////////////" );
 
-    int lenInstruction = buffID_EX->instruction_2[0] - '0';
-
     if (buffEX_MEM->status == false)
     {
+        buffEX_MEM->instruction_2 = NULL;
+        printf("%s\n","Apagado");
+
     }
 
-    else if(buffID_EX->block == true)
+    else if(buffEX_MEM->block == true)
     {
-        buffID_EX->block = true;
-        printf("%s %s %s\n","me bloquearon", buffID_EX->instruction_2[1], buffID_EX->instruction_2[2] );
+        buffEX_MEM->block = false;
+        //printf("%s %s %s\n","me bloquearon", buffID_EX->instruction_2[1], buffID_EX->instruction_2[2] );
         buffEX_MEM->instruction_1 = NULL;
         buffEX_MEM->instruction_2 = NULL;
-        buffEX_MEM->block = true;
 
     }
 
     else
     {
-
         int result = 0;
+        int lenInstruction = buffID_EX->instruction_2[0] - '0';
         buffEX_MEM->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffEX_MEM->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
         memcpy(buffEX_MEM->instruction_2, buffID_EX->instruction_2, sizeof(char*)*(lenInstruction+1));
@@ -1402,24 +1405,22 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
 {
     printf("%s\n","///////////////////// Inicio Memory /////////////////////////" );
 
-
-    int lenInstruction = buffEX_MEM->instruction_2[0] - '0';
-
     if (buffMEM_WB->status == false)
     {
+        buffMEM_WB->instruction_2 = NULL;
+        printf("%s\n","Apagado");
     }
 
-    else if(buffEX_MEM->block == true)
+    else if(buffMEM_WB->block == true)
     {
-        buffEX_MEM->block = false;
-        printf("%s %s %s\n","me bloquearon", buffID_EX->instruction_2[1], buffID_EX->instruction_2[2] );
-        buffEX_MEM->instruction_1 = NULL;
-        buffEX_MEM->instruction_2 = NULL;
-        buffEX_MEM->block = true;
+        buffMEM_WB->block = false;
+        //printf("%s %s %s\n","me bloquearon", buffEX_MEM->instruction_2[1], buffEX_MEM->instruction_2[2] );
+        buffMEM_WB->instruction_2 = NULL;
     }
 
     else
     {
+        int lenInstruction = buffEX_MEM->instruction_2[0] - '0';
 
         buffMEM_WB->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffMEM_WB->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
@@ -1458,6 +1459,10 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
             virtualMemory[buffEX_MEM->alu_result] = buffEX_MEM->instruction_1[2];
         }
 
+        else if (strcmp(buffEX_MEM->instruction_1[1],"beq") == 0 && (atoi(buffEX_MEM->instruction_1[2]) == atoi(buffEX_MEM->instruction_1[3])))
+        {
+            buffEX_MEM->block = true;
+        }
 
         buffMEM_WB->alu_result = buffEX_MEM->alu_result;
 
@@ -1482,20 +1487,23 @@ void writeBack(bufferMEM_WB* buffMEM_WB, bufferMWB_END* buffMWB_END,reg** regist
     printf("%s\n","///////////////////// Inicio WriteBack /////////////////////////" );
 
 
-    int lenInstruction = buffMEM_WB->instruction_2[0] - '0';
 
     if (buffMWB_END->status == false) {
+        printf("%s\n","Apagado");
+        buffMWB_END->instruction_2 = NULL;
 
     }
 
-    else if(buffMEM_WB->block == true)
+    else if(buffMWB_END->block == true)
     {
-        buffMWB_END->block = true;
+        buffMWB_END->block = false;
+        //printf("%s %s %s\n","me bloquearon", buffMWB_END->instruction_2[1], buffMWB_END->instruction_2[2] );
+        buffMWB_END->instruction_2 = NULL;
     }
 
     else
     {
-
+        int lenInstruction = buffMEM_WB->instruction_2[0] - '0';
         buffMWB_END->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
         buffMWB_END->instruction_2 = malloc(sizeof(char*)*(lenInstruction+1));
         memcpy(buffMWB_END->instruction_2, buffMEM_WB->instruction_2, sizeof(char*)*(lenInstruction+1));
@@ -1545,6 +1553,12 @@ void writeBack(bufferMEM_WB* buffMEM_WB, bufferMWB_END* buffMWB_END,reg** regist
                 printf("Error\n");
                 exit(1);
             }
+        }
+
+        else if (strcmp(buffMEM_WB->instruction_1[1],"beq") == 0 && (atoi(buffMEM_WB->instruction_1[2]) == atoi(buffMEM_WB->instruction_1[3])))
+        {
+            buffMEM_WB->block = true;
+            buffMWB_END->block = true;
         }
 
         printf("%s %s %s %s\n", buffMEM_WB->instruction_2[1],buffMEM_WB->instruction_2[2],buffMEM_WB->instruction_2[3],buffMEM_WB->instruction_2[4]);
