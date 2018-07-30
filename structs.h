@@ -37,6 +37,8 @@ typedef struct {
 	char** instruction_1;
 	char** instruction_2;
 
+	char* hazard;
+
 	int previus_PC;
 
 	bool block;
@@ -46,12 +48,16 @@ typedef struct {
 
 typedef struct {
 	bool status;
+	//ID
+	char AluSrc;
+	char AluOp_0;
+	char AluOp_1;
+	char RegDst;
 	//EX
 	char Branch;
 	char Jump;
 	char MemWrite;
 	char MemRead;
-
 	//WB
 	char MemToreg;
 	char RegWrite;
@@ -60,20 +66,33 @@ typedef struct {
 	char** instruction_1;
 	char** instruction_2;
 
+	char* hazard;
+
 	int previus_PC;
 	bool block;
-
 
 } bufferEX_MEM;
 
 typedef struct {
 	bool status;
+
+	//ID
+	char AluSrc;
+	char AluOp_0;
+	char AluOp_1;
+	char RegDst;
+	//EX
+	char Branch;
+	char Jump;
+	char MemWrite;
+	char MemRead;
 	//WB
 	char MemToreg;
 	char RegWrite;
-
 	char** instruction_1;
 	char** instruction_2;
+
+	char* hazard;
 
 	int alu_result;
 	int memory_data;

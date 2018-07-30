@@ -335,9 +335,70 @@ reg** populateRegisters()
     return registers;
 }
 
-void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_2, int option, int cycle, int *PC, char *** instructions)
+void writeHazards(bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, int cycle, bool *created_2 )
 {
     if (*created_2 == false)
+    {
+        FILE *fp;
+        fp=fopen("file2.csv", "w");
+
+        if(fp == NULL)
+        {
+            printf("Error al crear el archivo %s\n","fp_output_name_2");
+            exit(1);
+        }
+
+        fprintf(fp,"Cyclo,Control, Data\n");
+        fprintf(fp,"%d,",cycle-1);
+
+        if (buffEX_MEM->hazard != NULL)
+        {
+            fprintf(fp,"%c,",buffEX_MEM->hazard);
+        }
+
+        else
+        {
+            fprintf(fp,"-,-");
+        }
+
+        fprintf(fp, "\n");
+        *created_2 = true;
+        fclose(fp);
+    }
+
+    else
+    {
+        FILE *fp;
+        fp=fopen("file2.csv", "a");
+        if(fp == NULL)
+        {
+            printf("Error al crear el archivo %s\n", "fp_output_name_2");
+            exit(1);
+        }
+
+        fprintf(fp,"%d,",cycle-1);
+
+        if (buffEX_MEM->hazard != NULL)
+        {
+            fprintf(fp,"%s,-",buffEX_MEM->hazard);
+        }
+
+        else
+        {
+            fprintf(fp,"-,-");
+        }
+
+        fprintf(fp, "\n");
+        fclose(fp);
+
+    }
+
+}
+
+
+void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM * buffEX_MEM,bufferMEM_WB * buffMEM_WB, bufferMWB_END * buffMWB_END, bool* created_1, int option, int cycle, int *PC, char *** instructions)
+{
+    if (*created_1 == false)
     {
         FILE *fp;
         fp=fopen("file1.csv", "w");
@@ -368,7 +429,7 @@ void writePipeline(bufferIF_ID * buffIF_ID,bufferID_EX * buffID_EX,bufferEX_MEM 
         }
 
         fprintf(fp, "\n");
-        *created_2 = true;
+        *created_1 = true;
         fclose(fp);
 
     }
@@ -761,7 +822,7 @@ void fetch(bufferIF_ID* buffIF_ID, char*** instructions, int* PC)
 
     if (buffIF_ID->status == false)
     {
-        printf("%s\n","Apagado");
+        printf("%s\n    ","Apagado");
         buffIF_ID->instruction_2 = NULL;
     }
 
@@ -1193,6 +1254,35 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
 
     else
     {
+
+        if (strcmp(buffID_EX->instruction_2[1], "beq") == 0)
+        {
+            if ((strcmp(buffEX_MEM->instruction_2[2], buffID_EX->instruction_2[2]) == 0))
+            {
+                buffEX_MEM->hazard = malloc(sizeof(char*)*5);
+                memcpy(buffEX_MEM->hazard, buffEX_MEM->instruction_2[2], sizeof(char*)*5);
+                printf("%s\n",buffEX_MEM->hazard );
+            }
+
+            else if ((strcmp(buffEX_MEM->instruction_2[2], buffID_EX->instruction_2[3]) == 0))
+            {
+                buffEX_MEM->hazard = malloc(sizeof(char*)*5);
+                memcpy(buffEX_MEM->hazard, buffEX_MEM->instruction_2[2], sizeof(char*)*5);
+                printf("%s\n",buffEX_MEM->hazard );
+            }
+
+            else
+            {
+                buffEX_MEM->hazard = NULL;
+            }
+        }
+
+        else
+        {
+            buffEX_MEM->hazard = NULL;
+
+        }
+
         int result = 0;
         int lenInstruction = buffID_EX->instruction_2[0] - '0';
         buffEX_MEM->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
@@ -1387,6 +1477,8 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
         //printf("Soy Aluresult : %d\n\n", buffEX_MEM->alu_result );
 
         printf("%s %s %s %s\n", buffID_EX->instruction_1[1],buffID_EX->instruction_1[2],buffID_EX->instruction_1[3],buffID_EX->instruction_1[4]);
+        printf("%s %s %s %s\n", buffEX_MEM->instruction_1[1],buffEX_MEM->instruction_1[2],buffEX_MEM->instruction_1[3],buffEX_MEM->instruction_1[4]);
+
         printf("\n");
 
 
@@ -1394,6 +1486,12 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
         {
             buffEX_MEM->status = false;
         }
+
+
+
+
+
+
     }
 
     printf("%s\n\n","///////////////////// Fin Execution /////////////////////////" );
@@ -1401,7 +1499,7 @@ void execution(bufferID_EX* buffID_EX, bufferEX_MEM* buffEX_MEM, int* PC, char**
 
 }
 
-void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemory, reg** registersMemory, int * PC,char*** instructions)
+void memory(bufferID_EX* buffID_EX,bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemory, reg** registersMemory, int * PC,char*** instructions)
 {
     printf("%s\n","///////////////////// Inicio Memory /////////////////////////" );
 
@@ -1414,12 +1512,12 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
     else if(buffMEM_WB->block == true)
     {
         buffMEM_WB->block = false;
-        //printf("%s %s %s\n","me bloquearon", buffEX_MEM->instruction_2[1], buffEX_MEM->instruction_2[2] );
         buffMEM_WB->instruction_2 = NULL;
     }
 
     else
     {
+
         int lenInstruction = buffEX_MEM->instruction_2[0] - '0';
 
         buffMEM_WB->instruction_1 = malloc(sizeof(char*)*(lenInstruction+1));
@@ -1452,6 +1550,8 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
                 printf("%s\n","holaaaa");
                 exit(1);
             }
+
+
         }
 
         else if (strcmp(buffEX_MEM->instruction_1[1],"sw") == 0)
@@ -1474,7 +1574,6 @@ void memory(bufferEX_MEM* buffEX_MEM, bufferMEM_WB* buffMEM_WB, int* virtualMemo
         {
             buffMEM_WB->status = false;
         }
-
     }
 
     printf("%s\n\n","///////////////////// Fin Memory /////////////////////////" );
@@ -1585,27 +1684,27 @@ int main(int argc, char** argv)
 
     printf("%s\n","Bienvenido al simulador de MIPS V0.01\n\n" );
 
-    // printf("%s","Ingrese el nombre del archivo que contiene las Instrucciones del programa: " );
-    // fgets(fp_source_name_1,100,stdin);
-    // fp_source_name_1[strcspn(fp_source_name_1, "\n")] = 0;
-    // printf("\n");
+    printf("%s","Ingrese el nombre del archivo que contiene las Instrucciones del programa: " );
+    fgets(fp_source_name_1,100,stdin);
+    fp_source_name_1[strcspn(fp_source_name_1, "\n")] = 0;
+    printf("\n");
 
-    //
-    // printf("%s","Ingrese el nombre del archivo que contiene las Instrucciones del programa: ");
-    // fgets(fp_source_name_2,100,stdin);
-    // fp_source_name_2[strcspn(fp_source_name_2, "\n")] = 0;
-    // printf("\n");
-    //
-    //
-    // printf("%s","Ingrese el nombre del archivo que contendrá las Instrucciones ejecutadas al terminar el programa: " );
-    // fgets(fp_output_name_1,100,stdin);
-    // fp_output_name_1[strcspn(fp_output_name_1, "\n")] = 0;
-    // printf("\n");
-    //
-    // printf("%s","Ingrese el nombre del archivo que contendrá los valores de los registros al terminar el programa (Usar extensión .csv para mejor visualización): " );
-    // fgets(fp_output_name_2,100,stdin);
-    // fp_output_name_2[strcspn(fp_output_name_2, "\n")] = 0;
-    // printf("\n");
+
+    printf("%s","Ingrese el nombre del archivo que contiene las Instrucciones del programa: ");
+    fgets(fp_source_name_2,100,stdin);
+    fp_source_name_2[strcspn(fp_source_name_2, "\n")] = 0;
+    printf("\n");
+
+
+    printf("%s","Ingrese el nombre del archivo que contendrá las Instrucciones ejecutadas al terminar el programa: " );
+    fgets(fp_output_name_1,100,stdin);
+    fp_output_name_1[strcspn(fp_output_name_1, "\n")] = 0;
+    printf("\n");
+
+    printf("%s","Ingrese el nombre del archivo que contendrá los valores de los registros al terminar el programa (Usar extensión .csv para mejor visualización): " );
+    fgets(fp_output_name_2,100,stdin);
+    fp_output_name_2[strcspn(fp_output_name_2, "\n")] = 0;
+    printf("\n");
 
     bool created_1 = false;
     bool created_2 = false;
@@ -1629,14 +1728,11 @@ int main(int argc, char** argv)
     buffMWB_END->block = false;
 
 
-    //printf("%p\n",buffIF_ID);
-    //initializeBuffers(buffIF_ID,buffID_EX,buffEX_MEM,buffMEM_WB);
     char* controlLinesMemory;
     //regdst,jump,branch,memread,memtoreg,aluop,memwrite,alusrc,regwrite;
     reg ** registersMemory;
     char*** instructions = NULL;
     int* virtualMemory = NULL;
-    strcpy(fp_source_name_1,"entrada1.txt");
 	instructions = readData(fp_source_name_1);
     virtualMemory = calloc(1025,sizeof(int));
     registersMemory = malloc(sizeof(reg*)*27);
@@ -1658,40 +1754,46 @@ int main(int argc, char** argv)
 
             case 1 :
                 fetch(buffIF_ID,instructions,&PC);
-                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
-
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_1, option,cycle, &PC, instructions);
+                writeHazards(buffEX_MEM, buffMEM_WB, cycle, &created_2 );
                 option = 2;
                 break;
             case 2 :
                 identification(buffIF_ID,buffID_EX,registersMemory, instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
-                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_1, option,cycle, &PC, instructions);
+                writeHazards(buffEX_MEM, buffMEM_WB, cycle, &created_2 );
+
                 option = 3;
                 break;
             case 3 :
                 execution(buffID_EX,buffEX_MEM,&PC, instructions,registersMemory);
                 identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
-                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_1, option,cycle, &PC, instructions);
+                writeHazards(buffEX_MEM, buffMEM_WB, cycle, &created_2 );
 
                 option = 4;
                 break;
             case 4 :
-                memory(buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory, &PC,instructions);
+                memory(buffID_EX,buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory, &PC,instructions);
                 execution(buffID_EX,buffEX_MEM,&PC, instructions, registersMemory);
                 identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
-                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_1, option,cycle, &PC, instructions);
+                writeHazards(buffEX_MEM, buffMEM_WB, cycle, &created_2 );
 
                 option = 5;
                 break;
             case 5 :
                 writeBack(buffMEM_WB,buffMWB_END, registersMemory,instructions, &PC);
-                memory(buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory, &PC,instructions);
+                memory(buffID_EX,buffEX_MEM,buffMEM_WB, virtualMemory, registersMemory, &PC,instructions);
                 execution(buffID_EX,buffEX_MEM,&PC, instructions,registersMemory);
                 identification(buffIF_ID,buffID_EX,registersMemory ,instructions, &PC);
                 fetch(buffIF_ID,instructions,&PC);
-                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_2, option,cycle, &PC, instructions);
+                writePipeline(buffIF_ID,buffID_EX, buffEX_MEM, buffMEM_WB, buffMWB_END, &created_1, option,cycle, &PC, instructions);
+                writeHazards(buffEX_MEM, buffMEM_WB, cycle, &created_2 );
+
                 break;
         }
         cycle++;
